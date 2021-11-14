@@ -1,0 +1,5 @@
+
+add object User {
+    id: Uint64,
+    name: Text,
+}
