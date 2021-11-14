@@ -9,7 +9,7 @@ use ::lalrpop;
 
 fn parse_grammar_definition() {
     println!("cargo:rerun-if-changed=grammar.lalrpop");
-    let mut in_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let in_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     lalrpop::Configuration::new()
         .set_in_dir(in_dir)
         .process()

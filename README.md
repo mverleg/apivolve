@@ -1,6 +1,6 @@
 # Apivolve
 
-Apivolve is an API evolution tool, it helps your APIs backwards compatible yet clean, and generates client/server code in a variety of languages.
+Apivolve is an API evolution tool, it helps keep your APIs backwards compatible yet clean, and generates client/server code in a variety of languages.
 
 ## Is it ready for use?
 
@@ -32,7 +32,34 @@ Apivolve embraces the idea that APIs are not just en/decoding, but should clearl
 
 ## How to use?
 
-Apivolve is not yet ready for use, sorry.
+**Apivolve is not yet ready for use, sorry.**
+
+### Set up git hook
+
+**todo**
+
+### Show migrations
+
+To show and check the migrations in directories `dir1` and `dir2`:
+
+    apivolve -d=dir1 -d=dir2 check
+    apivolve -d=dir1 -d=dir2 list
+
+You can also set the directories using `APIVOLVE_MIGRATION_PATH`.
+
+### Generate code
+
+    apivolve gen
+
+### Create a migration
+
+First create the new file:
+
+    apivolve new
+
+Then edit the newly generated file.
+
+**todo**
 
 ## FAQ
 

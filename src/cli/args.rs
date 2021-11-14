@@ -1,11 +1,12 @@
-use ::std::path::PathBuf;
 use ::structopt::StructOpt;
 
+pub static DEFAULT_MIGRATION_DIR: &'static str = "./apivolve";
+
 #[derive(Debug, StructOpt)]
-#[structopt(name = "planr", about = "Simple CLI to interact with Planr.")]
+#[structopt(name = "apivolve", about = "API evolution tool, it helps keep your APIs backwards compatible yet clean, and generates client/server code in a variety of languages.")]
 pub struct Args {
-    #[structopt(long = "migration-dir", short = "d", parse(from_os_str), default_value="./apivolve", env = "APIVOLVE_MIGRATION_PATH")]
-    pub migration_dirs: Vec<PathBuf>,
+    #[structopt(long = "migration-path", short = "d", default_value=DEFAULT_MIGRATION_DIR, env = "APIVOLVE_MIGRATION_PATH")]
+    pub migration_dirs: Vec<String>,
     #[structopt(subcommand)]
     pub cmd: Cmd,
 }
