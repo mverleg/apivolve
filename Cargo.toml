@@ -16,13 +16,13 @@ path = "src/lib.rs"
 jemalloc = ["jemallocator"]
 
 [build-dependencies]
-lalrpop = "0.19"
+lalrpop = "0.19.6"
 
 [dependencies]
 log = "0.4"
 env_logger = "0.9"
 structopt = { version = "0.3" }
-lalrpop-util = "0.19"
+lalrpop-util = "0.19.6"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "0.3", optional = true }

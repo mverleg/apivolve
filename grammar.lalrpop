@@ -1,5 +1,7 @@
 use ::std::str::FromStr;
 
+use crate::load::ast::*;
+use ::lalrpop_util as __lalrpop_util;
 
 grammar;
 

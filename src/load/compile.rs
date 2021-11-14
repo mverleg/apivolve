@@ -1,6 +1,6 @@
 use crate::common::ApivResult;
-use crate::load::compile::grammar::grammar::bodyParser;
 
+use self::grammar::grammar::bodyParser;
 
 pub mod grammar {
     #![allow(warnings)]
