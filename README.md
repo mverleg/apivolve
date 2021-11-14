@@ -8,11 +8,11 @@ Apivolve is an API evolution tool, it helps keep your APIs backwards compatible 
 
 ## What does it do?
 
-### Migrations
+### Evolutions
 
-Instead of having API definition files that you keep changing, you maintain 'migration' files that describe API changes.
+Instead of having API definition files that you keep changing, you maintain evolution files that describe API changes.
 
-By using migrations, Apivolve can not only check backwards compatibility, but often provide it. For example:
+By using evolutions, Apivolve can not only check backwards compatibility, but often provide it. For example:
 
 * Change a field from number to text, and/or rename it: Apivolve will convert requests with the old field into the new one, and your endpoint only ever sees the newest version.
 * Combine first and last name fields into one: Apivolve will automatically convert requests with the old fields into a new one with a single name field, again hiding backwards compatibility from your code.
@@ -38,20 +38,20 @@ Apivolve embraces the idea that APIs are not just en/decoding, but should clearl
 
 **todo**
 
-### Show migrations
+### Show evolutions
 
-To show and check the migrations in directories `dir1` and `dir2`:
+To show and check the evolutions in directories `dir1` and `dir2`:
 
     apivolve -d=dir1 -d=dir2 check
     apivolve -d=dir1 -d=dir2 list
 
-You can also set the directories using `APIVOLVE_MIGRATION_PATH`.
+You can also set the directories using `APIVOLVE_EVOLUTION_PATH`.
 
 ### Generate code
 
     apivolve gen
 
-### Create a migration
+### Create an evolution
 
 First create the new file:
 
@@ -86,7 +86,7 @@ Ideally every language must support every encoding, so the number of encodings s
 
 If there is ever a third encoding, it is probably a binary encoding that uses the fact that the client and server both know the schema to achieve smaller size and/or better performance.
 
-#### Which language do migration files use?
+#### Which language do evolution files use?
 
 They use a declarative language that is part of Apivolve, with file extension `.apiv`.
 

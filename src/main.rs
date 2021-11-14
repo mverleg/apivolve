@@ -1,11 +1,13 @@
-use std::path::PathBuf;
+use ::std::path::PathBuf;
 
 use ::env_logger;
 use ::structopt::StructOpt;
 
+use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next};
+
 use crate::cli::args::Args;
 use crate::cli::args::Cmd;
-use crate::cli::args::DEFAULT_MIGRATION_DIR;
+use crate::cli::args::DEFAULT_EVOLUTION_DIR;
 
 mod cli;
 
@@ -21,36 +23,24 @@ fn main() {
     run(&args);
 }
 
-fn run(args: &Args) {
-    let mut dirs = collect_directories(&args.migration_dirs);
-    //TODO @mark: split on ";" if only one arg
-    println!("dirs: {:?}", dirs);  //TODO @mark: TEMPORARY! REMOVE THIS!
+pub fn run(args: &Args) {
+    let mut dirs = collect_directories(&args.evolution_dirs);
     match args.cmd {
-        Cmd::Check { .. } => {
-            unimplemented!()  //TODO @mark:
-        }
-        Cmd::Gen { .. } => {
-            unimplemented!()  //TODO @mark:
-        }
-        Cmd::List { .. } => {
-            unimplemented!()  //TODO @mark:
-        }
-        Cmd::New { .. } => {
-            unimplemented!()  //TODO @mark:
-        }
+        Cmd::Check { .. } => apivolve_check(dirs),
+        Cmd::Gen { .. } => apivolve_generate(dirs),
+        Cmd::List { .. } => apivolve_list(dirs),
+        Cmd::New { .. } => apivolve_next(dirs),
     }
 }
 
-fn collect_directories(migration_dirs: &[String]) -> Vec<PathBuf> {
-    if migration_dirs.is_empty() {
-        return vec![PathBuf::from(DEFAULT_MIGRATION_DIR)];
+fn collect_directories(evolution_dirs: &[String]) -> Vec<PathBuf> {
+    if evolution_dirs.is_empty() {
+        return vec![PathBuf::from(DEFAULT_EVOLUTION_DIR)];
     }
     let mut paths = vec![];
-    for migration_dir in migration_dirs {
-        if migration_dir.contains(";") {
-            unimplemented!();
-        } else {
-            paths.push(PathBuf::from(migration_dir))
+    for evolution_path in evolution_dirs {
+        for evolution_dir in evolution_path.split(";") {
+            paths.push(PathBuf::from(evolution_dir))
         }
     }
     return paths
