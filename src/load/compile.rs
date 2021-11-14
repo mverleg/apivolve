@@ -1,5 +1,5 @@
 use crate::common::ApivResult;
-use crate::load::ast::{Block, Evolution};
+use crate::load::ast::EvolutionAst;
 
 use self::grammar::grammar::evolutionParser;
 
@@ -11,7 +11,7 @@ pub mod grammar {
     lalrpop_mod!(pub grammar);
 }
 
-pub fn compile(code: &str) -> ApivResult<Evolution> {
+pub fn compile(code: &str) -> ApivResult<EvolutionAst> {
     return evolutionParser::new()
         .parse(code)
         //TODO @mark: msg

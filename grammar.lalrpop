@@ -5,8 +5,8 @@ use ::lalrpop_util as __lalrpop_util;
 
 grammar;
 
-pub evolution: Evolution = {
-    <b:body> => Evolution::new(b),
+pub evolution: EvolutionAst = {
+    <b:body> => EvolutionAst::new(b),
 };
 
 pub body: Vec<Block> = {

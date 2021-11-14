@@ -1,6 +1,6 @@
 use ::std::path::PathBuf;
-use std::ffi::OsStr;
-use std::fs::read_to_string;
+use ::std::ffi::OsStr;
+use ::std::fs::read_to_string;
 
 use crate::common::ApivResult;
 use crate::load::compile::compile;
@@ -10,7 +10,7 @@ pub struct Evolution {
     path: PathBuf,
 }
 
-fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Vec<Evolution>> {
+pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Vec<Evolution>> {
     let mut evolutions = vec![];
     for path in paths {
         evolutions.extend(load_dir(path)?);
