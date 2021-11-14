@@ -1,0 +1,17 @@
+[package]
+name = "apivolve"
+version = "0.1.0"
+edition = "2021"
+publish = true
+
+[[bin]]
+name = "apivolve"
+path = "src/main.rs"
+
+[dependencies]
+log = "0.4.14"
+env_logger = "0.9.0"
+structopt = { version = "0.3" }
+
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+jemallocator = { version = "0.3.2", optional = true }
