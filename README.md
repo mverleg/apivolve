@@ -36,9 +36,13 @@ Apivolve is not yet ready for use, sorry.
 
 ## FAQ
 
+#### How are version numbers determined?
+
+
+
 #### Which languages are supported?
 
-Apivolve is not tied to any language and could theoretically generate code for any language. However, the code generation is not yet actually complete for any languages.
+Apivolve is not tied to any language and could theoretically generate code for any language. However, the code generation is not yet actually complete for any languages. Rust will probably be first.
 
 #### Which protocols are supported?
 
@@ -57,6 +61,10 @@ If there is ever a third encoding, it is probably a binary encoding that uses th
 
 #### Which language do migration files use?
 
-They use a declarative language that is part of Apivolve.
+They use a declarative language that is part of Apivolve, with file extension `.apiv`.
+
+#### Is Apivolve secure?
+
+Apivolve is designed to be able to decode untrusted messages safely. It has not been subject to professional security analysis, though.
 
 

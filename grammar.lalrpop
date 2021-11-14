@@ -8,18 +8,13 @@ pub body: Vec<Block> = {
 };
 
 block: Block = {
-    operation kind identifier "{"
+    "add" "object" <name:identifier> "{" <fields:(<object_field>)*> "}" => Block::new(name, fields),
 };
+
+object_field: ObjectField = {
+    <name:identifier> ":" <typ:identifier> => ObjectField::new(name, typ),
+}
 
 identifier: Iden = {
     <n:r"[a-zA-Z_][a-zA-Z0-9_]*"> => Iden::new(n.to_owned()),
 };
-
-operation: Operation = {
-    "add" => Keyword::Add,
-    "update" => Keyword::Update,
-}
-
-kind: Kind = {
-    "object" => Keyword::Object,
-}

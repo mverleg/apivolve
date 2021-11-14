@@ -1,8 +1,11 @@
+use ::std::path::PathBuf;
 use ::structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "planr", about = "Simple CLI to interact with Planr.")]
 pub struct Args {
+    #[structopt(long = "migration-dir", short = "d", parse(from_os_str), default_value="./apivolve", env = "APIVOLVE_MIGRATION_PATH")]
+    pub migration_dirs: Vec<PathBuf>,
     #[structopt(subcommand)]
     pub cmd: Cmd,
 }

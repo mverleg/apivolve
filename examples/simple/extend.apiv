@@ -1,6 +1,6 @@
 
-depends on initial.apiv
+depends on 'initial.apiv' hash123abc
 
-update object User {
+add field to object User {
     add birthday: Date,
 }

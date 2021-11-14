@@ -1,9 +1,10 @@
 use ::env_logger;
 use ::structopt::StructOpt;
 
-use crate::args::{Args, Cmd};
+use crate::cli::args::Args;
+use crate::cli::args::Cmd;
 
-mod args;
+mod cli;
 
 #[cfg(feature = "jemalloc")]
 #[global_allocator]
@@ -18,6 +19,8 @@ fn main() {
 }
 
 fn run(args: &Args) {
+    let mut dirs = &args.migration_dirs;
+    println!("dirs: {:?}", dirs);  //TODO @mark: TEMPORARY! REMOVE THIS!
     match args.cmd {
         Cmd::Check { .. } => {
             unimplemented!()  //TODO @mark:
