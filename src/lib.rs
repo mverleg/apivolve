@@ -1,5 +1,6 @@
 use ::std::path::PathBuf;
 
+mod common;
 mod load;
 
 pub fn apivolve_check(evolution_dirs: Vec<PathBuf>) {
