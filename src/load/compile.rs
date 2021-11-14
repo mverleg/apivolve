@@ -1,4 +1,5 @@
 use crate::common::ApivResult;
+use crate::load::ast::Block;
 
 use self::grammar::grammar::bodyParser;
 
@@ -10,7 +11,7 @@ pub mod grammar {
     lalrpop_mod!(pub grammar);
 }
 
-pub fn compile(code: &str) -> ApivResult<()> {
+pub fn compile(code: &str) -> ApivResult<Vec<Block>> {
     return bodyParser::new()
         .parse(code)
         //TODO @mark: msg
