@@ -42,6 +42,6 @@ fn load_file(path: PathBuf) -> ApivResult<Evolution> {
     let code = read_to_string(&path).map_err(|err| format!("failed to read migration file '{}' because ofa technical problem: {}", path.to_string_lossy(), err))?;
     let ast = compile(&code)?;
     Ok(Evolution {
-        path
+        path,
     })
 }

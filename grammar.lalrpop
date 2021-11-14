@@ -5,8 +5,12 @@ use ::lalrpop_util as __lalrpop_util;
 
 grammar;
 
+pub evolution: Evolution = {
+    <b:body> => Evolution::new(b),
+};
+
 pub body: Vec<Block> = {
-    <es:(<block> ";")*> => es,
+    <es:(<block>)*> => es,
 };
 
 block: Block = {
@@ -14,7 +18,7 @@ block: Block = {
 };
 
 object_field: ObjectField = {
-    <name:identifier> ":" <typ:identifier> => ObjectField::new(name, typ),
+    <name:identifier> ":" <typ:identifier> "," => ObjectField::new(name, typ),
 }
 
 identifier: Iden = {

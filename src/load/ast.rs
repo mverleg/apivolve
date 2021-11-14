@@ -41,3 +41,16 @@ impl Block {
         }
     }
 }
+
+#[derive(Debug)]
+pub struct Evolution {
+    blocks: Vec<Block>,
+}
+
+impl Evolution {
+    pub fn new(blocks: Vec<Block>) -> Self {
+        Evolution {
+            blocks,
+        }
+    }
+}
