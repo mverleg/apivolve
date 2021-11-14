@@ -27,6 +27,7 @@ dependencies = [
  "env_logger",
  "jemallocator",
  "lalrpop",
+ "lalrpop-util",
  "log",
  "structopt",
 ]
