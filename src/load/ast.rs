@@ -12,7 +12,33 @@ impl Iden {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug)]
+pub struct Dependency {
+    name: Iden,
+    hash: Option<String>,
+}
+
+impl Dependency {
+    pub fn fixed(name: Iden, hash: &str) -> Self {
+        Dependency {
+            name,
+            hash: Some(hash.to_owned()),
+        }
+    }
+
+    pub fn dynamic(name: Iden) -> Self {
+        Dependency {
+            name,
+            hash: None,
+        }
+    }
+
+    pub fn is_fixed(&self) -> bool {
+        self.hash.is_some()
+    }
+}
+
+#[derive(Debug)]
 pub struct ObjectField {
     name: Iden,
     value: Iden,
@@ -44,12 +70,14 @@ impl Block {
 
 #[derive(Debug)]
 pub struct EvolutionAst {
+    depends: Vec<Dependency>,
     blocks: Vec<Block>,
 }
 
 impl EvolutionAst {
-    pub fn new(blocks: Vec<Block>) -> Self {
+    pub fn new(depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
         EvolutionAst {
+            depends,
             blocks,
         }
     }

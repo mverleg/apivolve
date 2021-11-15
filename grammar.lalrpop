@@ -5,20 +5,28 @@ use ::lalrpop_util as __lalrpop_util;
 
 grammar;
 
+match {
+    // Turn newlines into a token (they are skipped by default)
+    r"(\r\n|\n|\r)(\s|\r|\n)*" => END,
+} else {
+    _
+}
+
 pub evolution: EvolutionAst = {
-    <b:body> => EvolutionAst::new(b),
+    <ds:(<dependency>)*> <es:(<block>)*> => EvolutionAst::new(ds, es),
 };
 
-pub body: Vec<Block> = {
-    <es:(<block>)*> => es,
+dependency: Dependency = {
+    "depends on" <name:identifier> "~" END => Dependency::dynamic(name),
+    "depends on" <name:identifier> <hash:"'[a-zA-Z0-9]+'"> END => Dependency::fixed(name, hash),
 };
 
 block: Block = {
-    "add" "object" <name:identifier> "{" <fields:(<object_field>)*> "}" => Block::new(name, fields),
+    "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::new(name, fields),
 };
 
 object_field: ObjectField = {
-    <name:identifier> ":" <typ:identifier> "," => ObjectField::new(name, typ),
+    <name:identifier> ":" <typ:identifier> END => ObjectField::new(name, typ),
 }
 
 identifier: Iden = {
