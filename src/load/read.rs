@@ -3,11 +3,14 @@ use ::std::ffi::OsStr;
 use ::std::fs::read_to_string;
 
 use crate::common::ApivResult;
+use crate::load::ast::{Block, Dependency};
 use crate::load::compile::compile;
 
 #[derive(Debug)]
 pub struct Evolution {
     path: PathBuf,
+    pub depends: Vec<Dependency>,
+    pub blocks: Vec<Block>,
 }
 
 pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Vec<Evolution>> {
@@ -43,5 +46,7 @@ fn load_file(path: PathBuf) -> ApivResult<Evolution> {
     let ast = compile(path.to_string_lossy().as_ref(), &code)?;
     Ok(Evolution {
         path,
+        depends: ast.depends,
+        blocks: ast.blocks,
     })
 }

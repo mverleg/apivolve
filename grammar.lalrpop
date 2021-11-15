@@ -20,8 +20,8 @@ pub evolution: EvolutionAst = {
 };
 
 dependency: Dependency = {
-    "depends on" <name:path> "~" END => Dependency::dynamic(name),
-    "depends on" <name:path> <hash:"'[a-zA-Z0-9]+'"> END => Dependency::fixed(name, hash),
+    "depends on" <p:path> "~" END => Dependency::dynamic(p),
+    "depends on" <p:path> <hash:"'[a-zA-Z0-9]+'"> END => Dependency::fixed(p, hash),
 };
 
 block: Block = {

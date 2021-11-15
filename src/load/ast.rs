@@ -84,8 +84,8 @@ impl Block {
 
 #[derive(Debug)]
 pub struct EvolutionAst {
-    depends: Vec<Dependency>,
-    blocks: Vec<Block>,
+    pub depends: Vec<Dependency>,
+    pub blocks: Vec<Block>,
 }
 
 impl EvolutionAst {

@@ -1,11 +1,13 @@
+#![allow(unused)]  //TODO temporary
+
 use ::std::path::PathBuf;
-use std::process::exit;
+use ::std::process::exit;
 
 use ::env_logger;
 use ::structopt::StructOpt;
 
 use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next};
-use apivolve::ApivResult;
+use ::apivolve::ApivResult;
 
 use crate::cli::args::Args;
 use crate::cli::args::Cmd;
