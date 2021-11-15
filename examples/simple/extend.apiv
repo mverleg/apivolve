@@ -1,5 +1,5 @@
 
-depends on 'initial.apiv' hash123abc
+depends on 'initial.apiv' 'hash123abc'
 
 add field to object User {
     add birthday: Date

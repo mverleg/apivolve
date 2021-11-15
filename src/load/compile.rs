@@ -11,9 +11,9 @@ pub mod grammar {
     lalrpop_mod!(pub grammar);
 }
 
-pub fn compile(code: &str) -> ApivResult<EvolutionAst> {
+pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
     return evolutionParser::new()
         .parse(code)
         //TODO @mark: msg
-        .map_err(|err| format!("failed to compile: {}", err))
+        .map_err(|err| format!("{} failed to compile: {}", identifier, err))
 }

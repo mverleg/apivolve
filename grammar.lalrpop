@@ -9,16 +9,19 @@ match {
     // Turn newlines into a token (they are skipped by default)
     r"(\r\n|\n|\r)(\s|\r|\n)*" => END,
 } else {
+    // Ignore any other whitespace
+    r"\s+" => { },
+} else {
     _
 }
 
 pub evolution: EvolutionAst = {
-    <ds:(<dependency>)*> <es:(<block>)*> => EvolutionAst::new(ds, es),
+    END? <ds:(<dependency>)*> <es:(<block>)*> END => EvolutionAst::new(ds, es),
 };
 
 dependency: Dependency = {
-    "depends on" <name:identifier> "~" END => Dependency::dynamic(name),
-    "depends on" <name:identifier> <hash:"'[a-zA-Z0-9]+'"> END => Dependency::fixed(name, hash),
+    "depends on" <name:path> "~" END => Dependency::dynamic(name),
+    "depends on" <name:path> <hash:"'[a-zA-Z0-9]+'"> END => Dependency::fixed(name, hash),
 };
 
 block: Block = {
@@ -31,4 +34,9 @@ object_field: ObjectField = {
 
 identifier: Iden = {
     <n:r"[a-zA-Z_][a-zA-Z0-9_]*"> => Iden::new(n.to_owned()),
+};
+
+path: Path = {
+    <n:r"'[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*'(.apiv)?"> => Path::new(n.to_owned()),
+    <n:"\"[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*\"(.apiv)?"> => Path::new(n.to_owned()),
 };

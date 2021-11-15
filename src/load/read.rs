@@ -40,7 +40,7 @@ fn load_dir(path: PathBuf) -> ApivResult<Vec<Evolution>> {
 
 fn load_file(path: PathBuf) -> ApivResult<Evolution> {
     let code = read_to_string(&path).map_err(|err| format!("failed to read migration file '{}' because ofa technical problem: {}", path.to_string_lossy(), err))?;
-    let ast = compile(&code)?;
+    let ast = compile(path.to_string_lossy().as_ref(), &code)?;
     Ok(Evolution {
         path,
     })

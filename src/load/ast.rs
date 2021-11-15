@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Iden {
@@ -12,23 +13,36 @@ impl Iden {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Path {
+    path: PathBuf,
+}
+
+impl Path {
+    pub fn new(path: String) -> Self {
+        Path {
+            path: PathBuf::from(path),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Dependency {
-    name: Iden,
+    path: Path,
     hash: Option<String>,
 }
 
 impl Dependency {
-    pub fn fixed(name: Iden, hash: &str) -> Self {
+    pub fn fixed(path: Path, hash: &str) -> Self {
         Dependency {
-            name,
+            path,
             hash: Some(hash.to_owned()),
         }
     }
 
-    pub fn dynamic(name: Iden) -> Self {
+    pub fn dynamic(path: Path) -> Self {
         Dependency {
-            name,
+            path,
             hash: None,
         }
     }
