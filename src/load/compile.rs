@@ -1,4 +1,5 @@
 use ::std::fmt::Write;
+use std::cmp::max;
 
 use ::lalrpop_util::ParseError;
 
@@ -19,11 +20,14 @@ pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
     match evolutionParser::new().parse(code) {
         Ok(ast) => Ok(ast),
         Err(err) => match err {
-            ParseError::InvalidToken { location } => Err(format!("Invalid token in '{}':\n{}", identifier, source_locator(code, location, 1))),
-            ParseError::UnrecognizedEOF { .. } => Err(unimplemented!()),
-            ParseError::UnrecognizedToken { .. } => Err(unimplemented!()),
-            ParseError::ExtraToken { .. } => Err(unimplemented!()),
-            ParseError::User { .. } => Err(unimplemented!()),
+            ParseError::InvalidToken { location } => Err(format!("Invalid code in '{}':\n{}", identifier, source_locator(code, location, 1))),
+            ParseError::UnrecognizedEOF { location, expected } => Err(format!("Unexpected end in '{}':\n{}\nExpected one of: {}",
+                    identifier, source_locator(code, location, 1), expected.join(" / "))),
+            ParseError::UnrecognizedToken { token: (start, _, end), expected } => Err(format!("Unexpected code in '{}':\n{}\nExpected one of: {}",
+                    identifier, source_locator(code, start, max(1, end - start)), expected.join(" / "))),
+            ParseError::ExtraToken { token: (start, _, end) } => Err(format!("Invalid token in '{}':\n{}",
+                    identifier, source_locator(code, start, max(1, end - start)))),
+            ParseError::User { error } => Err(format!("Error in '{}':\n{}", identifier, error)),
         },
     }
 }
