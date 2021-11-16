@@ -1,6 +1,6 @@
 
 depends on "initial.apiv" hash "hash123abc"
 
-add field to object User {
-    birthday: Date
+change object User {
+    add birthday: Date
 }

@@ -131,11 +131,11 @@ impl ChangeObject {
 #[derive(Debug)]
 pub struct EvolutionAst {
     pub depends: Vec<Dependency>,
-    pub blocks: Vec<AddObject>,
+    pub blocks: Vec<Block>,
 }
 
 impl EvolutionAst {
-    pub fn new(depends: Vec<Dependency>, blocks: Vec<AddObject>) -> Self {
+    pub fn new(depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
         EvolutionAst {
             depends,
             blocks,
