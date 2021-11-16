@@ -28,7 +28,9 @@ dependencies = [
  "jemallocator",
  "lalrpop",
  "lalrpop-util",
+ "lazy_static",
  "log",
+ "regex",
  "structopt",
 ]
 

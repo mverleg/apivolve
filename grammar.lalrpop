@@ -29,6 +29,7 @@ dependency: Dependency = {
 
 block: Block = {
     "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::new(name, fields),
+    "add" "field" "to" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::new(name, fields),
 };
 
 object_field: ObjectField = {
@@ -38,8 +39,3 @@ object_field: ObjectField = {
 identifier: Iden = {
     <n:r"[a-zA-Z_][a-zA-Z0-9_]*"> => Iden::new(n.to_owned()),
 };
-
-//path: Path = {
-////    <n:r"'[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?'"> => Path::new(n.to_owned()),
-//    <n:r#""[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?""#> => Path::new(n.to_owned()),
-//};

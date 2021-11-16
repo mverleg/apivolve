@@ -27,12 +27,12 @@ pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
             },
             ParseError::UnrecognizedEOF { location, expected } => {
                 let (line, col) = source_line_col(code, location);
-                format!("Unexpected end in {}:{}:{}\n{}\n{}",
+                format!("Unexpected end in {}:{}:{}\n{}{}",
                         identifier, line + 1, col + 1, source_loc_repr(code, line, col, 1), fmt_expected_tokens(&expected))
             },
             ParseError::UnrecognizedToken { token: (start, _, end), expected } => {
                 let (line, col) = source_line_col(code, start);
-                format!("Unexpected code in {}:{}:{}\n{}\n{}",
+                format!("Unexpected code in {}:{}:{}\n{}{}",
                         identifier, line + 1, col + 1, source_loc_repr(code, line, col, max(1, end - start)), fmt_expected_tokens(&expected))
             },
             ParseError::ExtraToken { token: (start, _, end) } => {

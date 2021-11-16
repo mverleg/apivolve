@@ -1,4 +1,10 @@
-use std::path::PathBuf;
+use ::std::path::PathBuf;
+use ::lazy_static::lazy_static;
+use ::regex::Regex;
+
+lazy_static! {
+    static ref PATH_RE: Regex = Regex::new(r"[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?").unwrap();
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Iden {
@@ -15,14 +21,18 @@ impl Iden {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Path {
-    path: PathBuf,
+    path: String,
 }
 
 impl Path {
     pub fn new(path: &str) -> Self {
         Path {
-            path: PathBuf::from(path),
+            path: path.to_owned(),
         }
+    }
+
+    pub fn is_valid(&self) -> bool {
+        PATH_RE.is_match(&self.path)
     }
 }
 
