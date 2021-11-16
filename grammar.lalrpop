@@ -11,6 +11,10 @@ match {
     // Match string literals
     r#"("[^"]*"|([^"]*\\")*)"# => STR,
 } else {
+    // Match comments and documentation (only full-line for now)
+    r#"\s*#[^\r\n]*(\r\n|\n|\r)(\s|\r|\n)*"# => DOC,
+    r#"\s*//[^\r\n]*(\r\n|\n|\r)(\s|\r|\n)*"# => COMMENT,
+} else {
     // Ignore any other whitespace (except newlines above)
     r"\s+" => { },
 } else {
