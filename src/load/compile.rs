@@ -27,13 +27,13 @@ pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
             },
             ParseError::UnrecognizedEOF { location, expected } => {
                 let (line, col) = source_line_col(code, location);
-                format!("Unexpected end in {}:{}:{}\n{}\nExpected one of: {}",
-                        identifier, line + 1, col + 1, source_loc_repr(code, line, col, 1), expected.join(" / "))
+                format!("Unexpected end in {}:{}:{}\n{}\n{}",
+                        identifier, line + 1, col + 1, source_loc_repr(code, line, col, 1), fmt_expected_tokens(&expected))
             },
             ParseError::UnrecognizedToken { token: (start, _, end), expected } => {
                 let (line, col) = source_line_col(code, start);
-                format!("Unexpected code in {}:{}:{}\n{}\nExpected one of: {}",
-                        identifier, line + 1, col + 1, source_loc_repr(code, line, col, max(1, end - start)), expected.join(" / "))
+                format!("Unexpected code in {}:{}:{}\n{}\n{}",
+                        identifier, line + 1, col + 1, source_loc_repr(code, line, col, max(1, end - start)), fmt_expected_tokens(&expected))
             },
             ParseError::ExtraToken { token: (start, _, end) } => {
                 let (line, col) = source_line_col(code, start);
@@ -44,6 +44,16 @@ pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
                 format!("Error in {}: {}", identifier, error)
             },
         }),
+    }
+}
+
+fn fmt_expected_tokens(tokens: &[String]) -> String {
+    if tokens.len() == 0 {
+        "Do not know what to expect at this position".to_owned()
+    } else if tokens.len() == 1 {
+        format!("Expected: {}", tokens[0])
+    } else {
+        format!("Expected one of: {}", tokens.join(", "))
     }
 }
 
