@@ -6,6 +6,11 @@ lazy_static! {
     static ref PATH_RE: Regex = Regex::new(r"[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?").unwrap();
 }
 
+#[derive(Debug)]
+pub enum Value {
+    Str(String),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Iden {
     name: String,

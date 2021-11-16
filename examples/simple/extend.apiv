@@ -1,6 +1,6 @@
 
-depends on "initial.apiv" hash "hash123abc"
+depends on "initial.apiv" dynamic
 
 change object User {
-    add birthday: Date
+    add birthday: Date default "1988"
 }
