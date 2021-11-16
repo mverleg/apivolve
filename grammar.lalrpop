@@ -1,5 +1,4 @@
 use ::std::str::FromStr;
-use ::lalrpop_util as __lalrpop_util;
 
 use crate::load::ast::*;
 
@@ -9,7 +8,10 @@ match {
     // Turn newlines into a token (they are skipped by default)
     r"(\r\n|\n|\r)(\s|\r|\n)*" => END,
 } else {
-    // Ignore any other whitespace
+    // Match string literals
+    r#"("[^"]*"|([^"]*\\")*)"# => STR,
+} else {
+    // Ignore any other whitespace (except newlines above)
     r"\s+" => { },
 } else {
     _
@@ -20,9 +22,9 @@ pub evolution: EvolutionAst = {
 };
 
 dependency: Dependency = {
-    "depends on" <p:path> "dynamic" END => Dependency::dynamic(p),
+    "depends on" <p:STR> "dynamic" END => Dependency::dynamic(Path::new(p)),
 //    "depends on" <p:path> "hash" <hash:"'[a-zA-Z0-9]+'"> END => Dependency::fixed(p, hash),
-    "depends on" <p:path> "hash" <hash:"\"[a-zA-Z0-9]+\""> END => Dependency::fixed(p, hash),
+    "depends on" <p:STR> "hash" <hash:STR> END => Dependency::fixed(Path::new(p), hash),
 };
 
 block: Block = {
@@ -37,7 +39,7 @@ identifier: Iden = {
     <n:r"[a-zA-Z_][a-zA-Z0-9_]*"> => Iden::new(n.to_owned()),
 };
 
-path: Path = {
-//    <n:r"'[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?'"> => Path::new(n.to_owned()),
-    <n:r#""[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?""#> => Path::new(n.to_owned()),
-};
+//path: Path = {
+////    <n:r"'[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?'"> => Path::new(n.to_owned()),
+//    <n:r#""[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?""#> => Path::new(n.to_owned()),
+//};

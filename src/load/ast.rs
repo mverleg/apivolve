@@ -19,7 +19,7 @@ pub struct Path {
 }
 
 impl Path {
-    pub fn new(path: String) -> Self {
+    pub fn new(path: &str) -> Self {
         Path {
             path: PathBuf::from(path),
         }
