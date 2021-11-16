@@ -27,13 +27,17 @@ dependency: Dependency = {
     "depends on" <p:STR> "hash" <hash:STR> END => Dependency::fixed(Path::new(p), hash),
 };
 
-block: Block = {
-    "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::new(name, fields),
-    "add" "field" "to" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::new(name, fields),
-};
-
 object_field: ObjectField = {
     <name:identifier> ":" <typ:identifier> END => ObjectField::new(name, typ),
+}
+
+block: Block = {
+    "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::AddObj(AddObject::new(name, fields)),
+    "change" "object" <name:identifier> "{" END <fields:(<change_object_field>)*> "}" => Block::ChangeObj(ChangeObject::new(name, fields)),
+};
+
+change_object_field: ObjectFieldChange = {
+    <op:"add"> <name:identifier> ":" <typ:identifier> END => ObjectFieldChange::new(op, name, typ),
 }
 
 identifier: Iden = {

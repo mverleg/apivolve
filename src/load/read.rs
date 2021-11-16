@@ -3,14 +3,14 @@ use ::std::ffi::OsStr;
 use ::std::fs::read_to_string;
 
 use crate::common::ApivResult;
-use crate::load::ast::{Block, Dependency};
+use crate::load::ast::{AddObject, Dependency};
 use crate::load::compile::compile;
 
 #[derive(Debug)]
 pub struct Evolution {
     path: PathBuf,
     pub depends: Vec<Dependency>,
-    pub blocks: Vec<Block>,
+    pub blocks: Vec<AddObject>,
 }
 
 pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Vec<Evolution>> {

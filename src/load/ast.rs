@@ -63,6 +63,12 @@ impl Dependency {
 }
 
 #[derive(Debug)]
+pub enum Block {
+    AddObj(AddObject),
+    ChangeObj(ChangeObject),
+}
+
+#[derive(Debug)]
 pub struct ObjectField {
     name: Iden,
     value: Iden,
@@ -78,14 +84,44 @@ impl ObjectField {
 }
 
 #[derive(Debug)]
-pub struct Block {
+pub struct ObjectFieldChange {
+    name: Iden,
+    value: Iden,
+}
+
+impl ObjectFieldChange {
+    pub fn new(op: &str, name: Iden, value: Iden) -> Self {
+        ObjectFieldChange {
+            name,
+            value,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct AddObject {
     name: Iden,
     fields: Vec<ObjectField>
 }
 
-impl Block {
+impl AddObject {
     pub fn new(name: Iden, fields: Vec<ObjectField>) -> Self {
-        Block {
+        AddObject {
+            name,
+            fields,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct ChangeObject {
+    name: Iden,
+    fields: Vec<ObjectFieldChange>
+}
+
+impl ChangeObject {
+    pub fn new(name: Iden, fields: Vec<ObjectFieldChange>) -> Self {
+        ChangeObject {
             name,
             fields,
         }
@@ -95,11 +131,11 @@ impl Block {
 #[derive(Debug)]
 pub struct EvolutionAst {
     pub depends: Vec<Dependency>,
-    pub blocks: Vec<Block>,
+    pub blocks: Vec<AddObject>,
 }
 
 impl EvolutionAst {
-    pub fn new(depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
+    pub fn new(depends: Vec<Dependency>, blocks: Vec<AddObject>) -> Self {
         EvolutionAst {
             depends,
             blocks,
