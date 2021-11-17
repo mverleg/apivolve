@@ -1,23 +1,23 @@
 use crate::ast::Span;
-use crate::ast::term::{Iden, Value};
+use crate::ast::term::{Expression, Iden, Value};
 
 #[derive(Debug)]
 pub enum ObjectOp {
-    Add(Iden, Vec<FieldOp>, Span),
-    Change(Iden, Vec<FieldOp>, Span),
-    Delete(Iden, Span),
+    Add(Iden, Vec<FieldOp>),
+    Change(Iden, Vec<FieldOp>),
+    Delete(Iden),
 }
 
 #[derive(Debug)]
 pub enum FieldOp {
-    Add(Iden, Vec<FieldProperty>, Span),
-    Change(Iden, Vec<FieldProperty>, Span),
-    Delete(Iden, Span),
+    Add(Iden, Vec<FieldProperty>),
+    Change(Iden, Vec<FieldProperty>),
+    Delete(Iden),
 }
 
 #[derive(Debug)]
 pub enum FieldProperty {
-    Type(Iden, Span),
+    Type(Iden),
     Description(String, Span),
-    Default(Option<Value>, Span),
+    Default(Expression),
 }

@@ -1,6 +1,9 @@
 use ::std::str::FromStr;
 
-use crate::load::ast::*;
+use crate::ast::{span, Span};
+use crate::ast::evolution::*;
+use crate::ast::object::*;
+use crate::ast::term::*;
 
 grammar;
 
@@ -30,15 +33,22 @@ dependency: Dependency = {
     "depends on" <p:STR> "hash" <hash:STR> END => Dependency::fixed(Path::new(p), hash),
 };
 
-object_field: ObjectField = {
-    "add" <name:identifier> "type" <typ:identifier> "default" <def:value> END => ObjectField::add(name, typ),
-    "add" <name:identifier> "type" <typ:identifier> END => ObjectField::add(name, typ),
+block: Block = {
+    "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::Obj(ObjectOp::Add(name, fields)),
+    "change" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::Obj(ObjectOp::Add(name, fields)),
+};
+
+object_field: FieldOp = {
+    "add" <name:identifier> <props:object_field_prop*> END => FieldOp::Add(name, props),
+    "change" <name:identifier> <props:object_field_prop*> END => FieldOp::Change(name, props),
+    "delete" <name:identifier> END => FieldOp::Delete(name),
 }
 
-block: Block = {
-    "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::AddObj(AddObject::new(name, fields)),
-    "change" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::ChangeObj(ChangeObject::new(name, fields)),
-};
+object_field_prop: FieldProperty = {
+    "type" <n:identifier> END => FieldProperty::Type(n),
+    "description" <l: @L> <d:STR> <r: @R> END => FieldProperty::Description(d.to_owned(), span(l, r)),
+    "default" <v:value> END => FieldProperty::Default(Expression::Val(v)),
+}
 
 identifier: Iden = {
     <l: @L> <n:r"[a-zA-Z_][a-zA-Z0-9_]*"> <r: @R> => Iden::new(n.to_owned(), l, r),

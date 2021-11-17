@@ -2,5 +2,5 @@
 depends on "initial.apiv" dynamic
 
 change object User {
-    add birthday: Date default "1988"
+    add birthday type Date default "1988"
 }
