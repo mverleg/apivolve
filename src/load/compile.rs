@@ -3,8 +3,8 @@ use std::cmp::max;
 
 use ::lalrpop_util::ParseError;
 
+use crate::ast::evolution::EvolutionAst;
 use crate::common::ApivResult;
-use crate::load::ast::EvolutionAst;
 
 use self::grammar::grammar::evolutionParser;
 

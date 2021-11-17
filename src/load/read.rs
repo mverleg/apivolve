@@ -1,9 +1,9 @@
-use ::std::path::PathBuf;
 use ::std::ffi::OsStr;
 use ::std::fs::read_to_string;
+use ::std::path::PathBuf;
 
+use crate::ast::evolution::{Block, Dependency};
 use crate::common::ApivResult;
-use crate::load::ast::{AddObject, Block, Dependency};
 use crate::load::compile::compile;
 
 #[derive(Debug)]

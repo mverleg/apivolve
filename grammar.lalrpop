@@ -11,9 +11,8 @@ match {
     // Match string literals
     r#"("[^"]*"|([^"]*\\")*)"# => STR,
 } else {
-    // Match comments and documentation (only full-line for now)
-    r#"\s*#[^\r\n]*(\r\n|\n|\r)(\s|\r|\n)*"# => DOC,
-    r#"\s*//[^\r\n]*(\r\n|\n|\r)(\s|\r|\n)*"# => COMMENT,
+    // Ignore comments (only full-line for now)
+    r#"\s*#[^\r\n]*(\r\n|\n|\r)(\s|\r|\n)*"# => { },
 } else {
     // Ignore any other whitespace (except newlines above)
     r"\s+" => { },
@@ -32,18 +31,14 @@ dependency: Dependency = {
 };
 
 object_field: ObjectField = {
-    <name:identifier> ":" <typ:identifier> END => ObjectField::new(name, typ),
+    "add" <name:identifier> "type" <typ:identifier> "default" <def:value> END => ObjectField::add(name, typ),
+    "add" <name:identifier> "type" <typ:identifier> END => ObjectField::add(name, typ),
 }
 
 block: Block = {
     "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::AddObj(AddObject::new(name, fields)),
-    "change" "object" <name:identifier> "{" END <fields:(<change_object_field>)*> "}" => Block::ChangeObj(ChangeObject::new(name, fields)),
+    "change" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::ChangeObj(ChangeObject::new(name, fields)),
 };
-
-change_object_field: ObjectFieldChange = {
-    <op:"add"> <name:identifier> ":" <typ:identifier> "manual" END => ObjectFieldChange::new(op, name, typ),
-    <op:"add"> <name:identifier> ":" <typ:identifier> "default" <def:value> END => ObjectFieldChange::new(op, name, typ),
-}
 
 identifier: Iden = {
     <l: @L> <n:r"[a-zA-Z_][a-zA-Z0-9_]*"> <r: @R> => Iden::new(n.to_owned(), l, r),

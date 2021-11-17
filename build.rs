@@ -1,11 +1,11 @@
 use ::std::env;
 use ::std::path::PathBuf;
 
+use ::lalrpop;
+
 fn main() {
     parse_grammar_definition();
 }
-
-use ::lalrpop;
 
 fn parse_grammar_definition() {
     println!("cargo:rerun-if-changed=grammar.lalrpop");
