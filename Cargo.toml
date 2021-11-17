@@ -25,6 +25,8 @@ structopt = { version = "0.3" }
 lalrpop-util = { version = "0.19.6", features = ["lexer"] }
 regex = "1.5.4"
 lazy_static = "1.4.0"
+twox-hash = "1.6.1"
+base64 = "*"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "0.3", optional = true }

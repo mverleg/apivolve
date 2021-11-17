@@ -1,6 +1,8 @@
 use ::std::ffi::OsStr;
 use ::std::fs::read_to_string;
 use ::std::path::PathBuf;
+use std::hash::Hasher;
+use twox_hash::XxHash64;
 
 use crate::ast::evolution::{Block, Dependency};
 use crate::common::ApivResult;
@@ -11,6 +13,14 @@ pub struct Evolution {
     path: PathBuf,
     pub depends: Vec<Dependency>,
     pub blocks: Vec<Block>,
+}
+
+impl Evolution {
+    pub fn seal(&self, hasher: &mut XxHash64) {
+        dbg!("better hasher delegation");  //TODO @mark
+        hasher.write_u32(self.depends.len() as u32);
+        hasher.write_u32(self.blocks.len() as u32);
+    }
 }
 
 pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Vec<Evolution>> {
