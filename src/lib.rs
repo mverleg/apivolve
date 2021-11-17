@@ -19,7 +19,8 @@ pub fn apivolve_generate(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
 }
 
 pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
-    let _evolutions = load_dirs(evolution_dirs)?;
+    let evolutions = load_dirs(evolution_dirs)?;
+    dbg!(evolutions);  //TODO @mark: TEMPORARY! REMOVE THIS!
     unimplemented!()  //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 

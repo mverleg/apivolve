@@ -61,7 +61,7 @@ pub struct Path {
 impl Path {
     pub fn new(path: &str) -> Self {
         Path {
-            path: path.to_owned(),
+            path: path[1 .. path.len() - 1].to_owned(),
         }
     }
 

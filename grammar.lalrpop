@@ -60,5 +60,5 @@ identifier: Iden = {
 
 //TODO @mark: support more types
 value: Value = {
-    <l: @L> <v:STR> <r: @R> => Value::Str(v.to_owned(), span(l, r)),
+    <l: @L> <v:STR> <r: @R> => Value::str(v, span(l, r)),
 }

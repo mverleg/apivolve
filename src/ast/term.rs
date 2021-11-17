@@ -8,6 +8,12 @@ pub enum Value {
     None,
 }
 
+impl Value {
+    pub fn str(quoted_text: &str, span: Span) -> Value {
+        Value::Str(quoted_text[1 .. quoted_text.len() - 1].to_owned(), span)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Iden {
     name: String,
