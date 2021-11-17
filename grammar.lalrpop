@@ -24,7 +24,11 @@ match {
 }
 
 pub evolution: EvolutionAst = {
-    END? <ds:(<dependency>)*> <es:(<block>)*> END => EvolutionAst::new(ds, es),
+    END?
+        "apivolve" <v:r"[0-9]+\.[0-9]+(\.[0-9]+)?"> END
+        <ds:(<dependency>)*>
+        <es:(<block>)*>
+        END => EvolutionAst::new(v.to_owned(), ds, es),
 };
 
 dependency: Dependency = {
@@ -39,15 +43,15 @@ block: Block = {
 };
 
 object_field: FieldOp = {
-    "add" <name:identifier> <props:object_field_prop*> END => FieldOp::Add(name, props),
-    "change" <name:identifier> <props:object_field_prop*> END => FieldOp::Change(name, props),
+    "add" <name:identifier> <props:object_field_prop*> => FieldOp::Add(name, props),
+    "change" <name:identifier> <props:object_field_prop*> => FieldOp::Change(name, props),
     "delete" <name:identifier> END => FieldOp::Delete(name),
 }
 
 object_field_prop: FieldProperty = {
-    "type" <n:identifier> END => FieldProperty::Type(n),
-    "description" <l: @L> <d:STR> <r: @R> END => FieldProperty::Description(d.to_owned(), span(l, r)),
-    "default" <v:value> END => FieldProperty::Default(Expression::Val(v)),
+    "type" <n:identifier> END? => FieldProperty::Type(n),
+    "description" <l: @L> <d:STR> <r: @R> END? => FieldProperty::Description(d.to_owned(), span(l, r)),
+    "default" <v:value> END? => FieldProperty::Default(Expression::Val(v)),
 }
 
 identifier: Iden = {

@@ -14,7 +14,7 @@ pub struct EvolutionAst {
 }
 
 impl EvolutionAst {
-    pub fn new(depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
+    pub fn new(version: String, depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
         EvolutionAst {
             depends,
             blocks,
