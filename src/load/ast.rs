@@ -6,20 +6,32 @@ lazy_static! {
     static ref PATH_RE: Regex = Regex::new(r"[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?").unwrap();
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Span {
+    left: usize,
+    right: usize,
+}
+pub fn span(left: usize, right: usize) -> Span {
+    Span { left, right }
+}
+
+
 #[derive(Debug)]
 pub enum Value {
-    Str(String),
+    Str(String, Span),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Iden {
     name: String,
+    span: Span,
 }
 
 impl Iden {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: String, left: usize, right: usize) -> Self {
         Iden {
             name,
+            span: span(left, right),
         }
     }
 }

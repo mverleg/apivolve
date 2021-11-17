@@ -46,10 +46,10 @@ change_object_field: ObjectFieldChange = {
 }
 
 identifier: Iden = {
-    <n:r"[a-zA-Z_][a-zA-Z0-9_]*"> => Iden::new(n.to_owned()),
+    <l: @L> <n:r"[a-zA-Z_][a-zA-Z0-9_]*"> <r: @R> => Iden::new(n.to_owned(), l, r),
 };
 
 //TODO @mark: support more types
 value: Value = {
-    <v:STR> => Value::Str(v.to_owned()),
+    <l: @L> <v:STR> <r: @R> => Value::Str(v.to_owned(), span(l, r)),
 }
