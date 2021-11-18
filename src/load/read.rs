@@ -10,14 +10,14 @@ use crate::load::compile::compile;
 
 #[derive(Debug)]
 pub struct Evolution {
-    path: PathBuf,
+    pub path: PathBuf,
     pub depends: Vec<Dependency>,
     pub blocks: Vec<Block>,
 }
 
 impl Evolution {
     pub fn seal(&self, hasher: &mut XxHash64) {
-        dbg!("better hasher delegation");  //TODO @mark
+        eprintln!("better hasher delegation");  //TODO @mark
         hasher.write_u32(self.depends.len() as u32);
         hasher.write_u32(self.blocks.len() as u32);
     }
