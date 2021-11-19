@@ -1,5 +1,6 @@
 use ::lazy_static::lazy_static;
 use ::regex::Regex;
+use crate::ast::evolution::VersionBump::Patch;
 
 use crate::ast::object::ObjectOp;
 
@@ -9,17 +10,26 @@ lazy_static! {
 
 #[derive(Debug)]
 pub struct EvolutionAst {
+    pub bump: VersionBump,
     pub depends: Vec<Dependency>,
     pub blocks: Vec<Block>,
 }
 
 impl EvolutionAst {
-    pub fn new(version: String, depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
+    pub fn new(apivolve_version: String, bump: Option<VersionBump>, depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
         EvolutionAst {
+            bump: bump.unwrap_or(Patch),
             depends,
             blocks,
         }
     }
+}
+
+#[derive(Debug)]
+pub enum VersionBump {
+    Patch,
+    Minor,
+    Major,
 }
 
 #[derive(Debug)]

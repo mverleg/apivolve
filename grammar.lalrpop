@@ -28,14 +28,21 @@ pub evolution: EvolutionAst = {
     END?
         "apivolve" <v:r"v[0-9]+\.[0-9]+(\.[0-9]+)?"> END
         <ds:(<dependency>)*>
+        <vb:(<bump>)?>
         <es:(<block>)*>
-        END => EvolutionAst::new(v.to_owned(), ds, es),
+        END => EvolutionAst::new(v.to_owned(), vb, ds, es),
 };
 
 dependency: Dependency = {
     "depends on" <p:STR> "dynamic" END => Dependency::dynamic(Path::new(p)),
 //    "depends on" <p:path> "hash" <hash:"'[a-zA-Z0-9]+'"> END => Dependency::fixed(p, hash),
     "depends on" <p:STR> "hash" <hash:STR> END => Dependency::fixed(Path::new(p), hash),
+};
+
+bump: Option<VersionBump> = {
+    "bump" "patch" END => Some(VersionBump::Patch),
+    "bump" "minor" END => Some(VersionBump::Minor),
+    "bump" "major" END => Some(VersionBump::Major),
 };
 
 block: Block = {
