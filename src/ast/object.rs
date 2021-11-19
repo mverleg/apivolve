@@ -28,13 +28,17 @@ impl ObjectAdd {
 #[derive(Debug)]
 pub struct ObjectChange {
     pub name: Iden,
-    pub desc: Option<(Span, Vec<String>)>,
+    pub desc: Option<(Span, String)>,
     pub ops: Vec<FieldOp>,
 }
 
 impl ObjectChange {
-    pub fn new(name: Iden, ops: Vec<FieldOp>) -> Self {
+    pub fn minimal(name: Iden, ops: Vec<FieldOp>,) -> Self {
         ObjectChange { name, desc: None, ops }
+    }
+
+    pub fn with_desc(name: Iden, desc: (Span, &str), ops: Vec<FieldOp>,) -> Self {
+        ObjectChange { name, desc: Some((desc.0, desc.1.to_owned())), ops }
     }
 }
 
