@@ -2,7 +2,7 @@ use ::std::ffi::OsStr;
 use ::std::fs::read_to_string;
 use ::std::path::PathBuf;
 use std::hash::Hasher;
-use twox_hash::XxHash64;
+use sha2::Sha256;
 
 use crate::ast::evolution::{Block, Dependency};
 use crate::common::ApivResult;
@@ -16,8 +16,9 @@ pub struct Evolution {
 }
 
 impl Evolution {
-    pub fn seal(&self, hasher: &mut XxHash64) {
+    pub fn seal(&self, hasher: &mut impl Hasher) {
         eprintln!("better hasher delegation");  //TODO @mark
+        hasher.write(&[]);
         hasher.write_u32(self.depends.len() as u32);
         hasher.write_u32(self.blocks.len() as u32);
     }

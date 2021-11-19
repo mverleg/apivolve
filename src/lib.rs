@@ -5,7 +5,8 @@ use ::std::hash::BuildHasherDefault;
 use ::std::hash::Hasher;
 use ::std::path::PathBuf;
 
-use ::twox_hash::XxHash64;
+use ::sha2::Digest;
+use ::sha2::Sha256;
 
 pub use crate::common::ApivResult;
 use crate::load::read::load_dirs;
@@ -28,8 +29,8 @@ pub fn apivolve_generate(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
 
 pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
     let evolutions = load_dirs(evolution_dirs)?;
-    let evolutions = linearize(evolutions);
-    let mut hasher = XxHash64::default();
+    //let evolutions = linearize(evolutions);
+    let mut hasher = Sha256::new();
     for evolution in evolutions {
         evolution.seal(&mut hasher);
         let digest = format!("xx64:{}", base64::encode(hasher.finish().to_le_bytes()));
