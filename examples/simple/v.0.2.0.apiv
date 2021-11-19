@@ -1,0 +1,10 @@
+apivolve v0.1
+
+depends on "v0.1.0" dynamic
+
+bump minor
+
+change object User {
+    description "Anonymous member of the application"
+    delete name
+}

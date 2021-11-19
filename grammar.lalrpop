@@ -39,10 +39,10 @@ dependency: Dependency = {
     "depends on" <p:STR> "hash" <hash:STR> END => Dependency::fixed(Path::new(p), hash),
 };
 
-bump: Option<VersionBump> = {
-    "bump" "patch" END => Some(VersionBump::Patch),
-    "bump" "minor" END => Some(VersionBump::Minor),
-    "bump" "major" END => Some(VersionBump::Major),
+bump: (Span, VersionBump) = {
+    <l: @L> "bump" "patch" <r: @R> END => (span(l, r), VersionBump::Patch),
+    <l: @L> "bump" "minor" <r: @R> END => (span(l, r), VersionBump::Minor),
+    <l: @L> "bump" "major" <r: @R> END => (span(l, r), VersionBump::Major),
 };
 
 block: Block = {

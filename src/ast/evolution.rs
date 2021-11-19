@@ -3,6 +3,7 @@ use ::regex::Regex;
 use crate::ast::evolution::VersionBump::Patch;
 
 use crate::ast::object::ObjectOp;
+use crate::ast::Span;
 
 lazy_static! {
     static ref PATH_RE: Regex = Regex::new(r"[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?").unwrap();
@@ -10,15 +11,18 @@ lazy_static! {
 
 #[derive(Debug)]
 pub struct EvolutionAst {
-    pub bump: VersionBump,
+    pub bump: (Option<Span>, VersionBump),
     pub depends: Vec<Dependency>,
     pub blocks: Vec<Block>,
 }
 
 impl EvolutionAst {
-    pub fn new(apivolve_version: String, bump: Option<VersionBump>, depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
+    pub fn new(apivolve_version: String, bump: Option<(Span, VersionBump)>, depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
         EvolutionAst {
-            bump: bump.unwrap_or(Patch),
+            bump: match bump {
+                Some(bump) => (Some(bump.0), bump.1),
+                None => (None, Patch),
+            },
             depends,
             blocks,
         }
