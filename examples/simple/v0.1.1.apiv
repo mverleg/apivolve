@@ -1,6 +1,6 @@
 apivolve v0.1
 
-depends on "v0.1.0" dynamic
+depends on "v0.1.0" hash "sha256:AazstQer/ho1SqgGT0r10/Gs0BnjfbPBHJdSO3HHbp0="
 
 bump patch
 
