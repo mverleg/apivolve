@@ -39,8 +39,12 @@ dependency: Dependency = {
 };
 
 block: Block = {
-    "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::Obj(ObjectOp::Add(name, fields)),
-    "change" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" => Block::Obj(ObjectOp::Add(name, fields)),
+    "add" "object" <name:identifier> "{" END "description" <l: @L> <desc:STR> <r: @R> END <fields:(<object_field>)*> "}" =>
+        Block::Obj(ObjectOp::Add(ObjectAdd::with_desc(name, (span(l, r), desc), fields))),
+    "add" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" =>
+        Block::Obj(ObjectOp::Add(ObjectAdd::minimal(name, fields))),
+    "change" "object" <name:identifier> "{" END <fields:(<object_field>)*> "}" =>
+        Block::Obj(ObjectOp::Change(ObjectChange::new(name, fields))),
 };
 
 object_field: FieldOp = {
