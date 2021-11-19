@@ -30,10 +30,10 @@ pub fn apivolve_generate(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
 pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
     let evolutions = load_dirs(evolution_dirs)?;
     //let evolutions = linearize(evolutions);
-    let mut hasher = Sha256::new();
     for evolution in evolutions {
+        let mut hasher = Sha256::new();
         evolution.seal(&mut hasher);
-        let digest = format!("xx64:{}", base64::encode(hasher.finish().to_le_bytes()));
+        let digest = format!("sha256:{}", base64::encode(hasher.finalize()));
         println!("{}\t{}", evolution.path.to_string_lossy(), digest);
     }
     unimplemented!()  //TODO @mark: TEMPORARY! REMOVE THIS!

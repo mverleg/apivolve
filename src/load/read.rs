@@ -1,8 +1,10 @@
 use ::std::ffi::OsStr;
 use ::std::fs::read_to_string;
+use ::std::hash::Hasher;
+use ::std::io::Write;
 use ::std::path::PathBuf;
-use std::hash::Hasher;
-use sha2::Sha256;
+
+use ::sha2::digest::Update;
 
 use crate::ast::evolution::{Block, Dependency};
 use crate::common::ApivResult;
@@ -16,11 +18,10 @@ pub struct Evolution {
 }
 
 impl Evolution {
-    pub fn seal(&self, hasher: &mut impl Hasher) {
-        eprintln!("better hasher delegation");  //TODO @mark
-        hasher.write(&[]);
-        hasher.write_u32(self.depends.len() as u32);
-        hasher.write_u32(self.blocks.len() as u32);
+    pub fn seal(&self, hasher: &mut impl Update) {
+        //TODO @mark:
+        hasher.update((self.depends.len() as u32).to_le_bytes());
+        hasher.update((self.blocks.len() as u32).to_le_bytes());
     }
 }
 
