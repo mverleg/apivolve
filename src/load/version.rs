@@ -45,6 +45,20 @@ impl Version {
     pub fn patch(&self) -> u32 {
         self.patch
     }
+
+    /// Version 0.0.0 returns itself.
+    pub fn prev(&self) -> Version {
+        if self.patch > 0 {
+            return Version::new(self.major, self.minor, self.patch - 1)
+        }
+        if self.minor > 0 {
+            return Version::new(self.major, self.minor - 1, 0)
+        }
+        if self.major > 0 {
+            return Version::new(self.major - 1, 0, 0)
+        }
+        Version::new(0, 0, 0)
+    }
 }
 
 impl Eq for Version {}

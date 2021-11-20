@@ -30,6 +30,10 @@ impl Evolution {
         hasher.update((self.depends.len() as u32).to_le_bytes());
         hasher.update((self.blocks.len() as u32).to_le_bytes());
     }
+
+    pub fn prev_version(&self) -> Version {
+        self.version.prev()
+    }
 }
 
 pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Vec<Evolution>> {
