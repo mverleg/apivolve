@@ -34,8 +34,8 @@ pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
         evolution.seal(&mut hasher);
         let digest = format!("sha256:{}", base64::encode(hasher.finalize()));
         println!(
-            "{}\t{}\t\"{}\"",
-            &evolution.version,
+            "{}\t\"{}\"\t\"{}\"",
+            &evolution.version.pure(),
             evolution.path.to_string_lossy(),
             digest
         );

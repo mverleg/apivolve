@@ -44,6 +44,17 @@ pub struct Version {
     desc: Option<String>,
 }
 
+impl Version {
+    pub fn pure(&self) -> Version {
+        Version {
+            major: self.major,
+            minor: self.minor,
+            patch: self.patch,
+            desc: None,
+        }
+    }
+}
+
 impl fmt::Display for Version {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.desc {
