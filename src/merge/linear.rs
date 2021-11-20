@@ -1,5 +1,6 @@
 use crate::load::read::Evolution;
 
-pub fn linearize(evolutions: Vec<Evolution>) -> Vec<Evolution> {
-    unimplemented!(); //TODO @mark: TEMPORARY! REMOVE THIS!
+pub fn linearize(mut evolutions: Vec<Evolution>) -> Vec<Evolution> {
+    evolutions.sort_by(|left, right| left.version.cmp(&right.version));
+    evolutions
 }
