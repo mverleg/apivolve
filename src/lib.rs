@@ -34,9 +34,9 @@ pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
         let mut hasher = Sha256::new();
         evolution.seal(&mut hasher);
         let digest = format!("sha256:{}", base64::encode(hasher.finalize()));
-        println!("{}\t{}", evolution.path.to_string_lossy(), digest);
+        println!("{}\t{}\t\"{}\"", &evolution.version, evolution.path.to_string_lossy(), digest);
     }
-    unimplemented!()  //TODO @mark: TEMPORARY! REMOVE THIS!
+    Ok(())
 }
 
 pub fn apivolve_next(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
