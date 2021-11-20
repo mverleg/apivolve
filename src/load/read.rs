@@ -149,10 +149,18 @@ fn extract_version(path: &Path) -> ApivResult<Version> {
             name
         )
     })?;
+    let desc = groups.get(4).map(|m| m.as_str().to_owned());
+    if let Some(desc) = desc {
+        //TODO: should descriptions be allowed? it is very helpful, but increases the chance to have duplicate versions without conflicts
+        return Err(format!(
+            "Filename should be just a version of 3 numbers, not '{}' in '{}'",
+            &desc, path.to_string_lossy()
+        ));
+    }
     Ok(Version {
         major: groups[1].parse().unwrap(),
         minor: groups[2].parse().unwrap(),
         patch: groups[3].parse().unwrap(),
-        desc: groups.get(4).map(|m| m.as_str().to_owned()),
+        desc: desc,
     })
 }
