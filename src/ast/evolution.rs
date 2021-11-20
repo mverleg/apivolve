@@ -4,6 +4,7 @@ use ::regex::Regex;
 use crate::ast::evolution::VersionBump::Patch;
 use crate::ast::object::ObjectOp;
 use crate::ast::Span;
+use crate::Version;
 
 lazy_static! {
     static ref PATH_RE: Regex =
@@ -49,6 +50,8 @@ pub enum Block {
 
 #[derive(Debug)]
 pub struct Dependency {
+    //TODO @mark: switch from path to just version, since names are predictable now?
+    //TODO @mark: might be a problem when doing git merges though...
     path: Path,
     hash: Option<String>,
 }
