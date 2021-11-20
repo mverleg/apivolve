@@ -12,17 +12,20 @@ lazy_static! {
         Regex::new(r"v([0-9]+)\.([0-9]+)\.([0-9]+)(\.[a-zA-Z0-9_\-]+)?\.apiv").unwrap();
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct Version {
     major: u32,
     minor: u32,
     patch: u32,
-    desc: Option<String>,
 }
 
 impl Version {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
-        Version { major, minor, patch, desc: None }
+        Version { major, minor, patch }
+    }
+
+    pub fn zero() -> Self {
+        Version::new(0, 0, 0)
     }
 
     pub fn pure(&self) -> Version {
@@ -30,7 +33,6 @@ impl Version {
             major: self.major,
             minor: self.minor,
             patch: self.patch,
-            desc: None,
         }
     }
 
@@ -46,8 +48,9 @@ impl Version {
         self.patch
     }
 
-    /// Version 0.0.0 returns itself.
-    pub fn prev(&self) -> Version {
+    /// Return an ancestor by decrementing the last non-zero item. Not necessarily the direct
+    /// ancestor, i.e. v1.2.0 returns v1.1.0 but direct one could be v1.1.4. Version 0.0.0 returns itself.
+    pub fn ancestor(&self) -> Version {
         if self.patch > 0 {
             return Version::new(self.major, self.minor, self.patch - 1)
         }
@@ -93,10 +96,7 @@ impl Ord for Version {
 
 impl fmt::Display for Version {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.desc {
-            Some(desc) => write!(f, "{}.{}.{}.{}", self.major, self.minor, self.patch, desc),
-            None => write!(f, "{}.{}.{}", self.major, self.minor, self.patch),
-        }
+        write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
     }
 }
 
@@ -133,6 +133,5 @@ pub fn extract_version(path: &Path) -> ApivResult<Version> {
         major: groups[1].parse().unwrap(),
         minor: groups[2].parse().unwrap(),
         patch: groups[3].parse().unwrap(),
-        desc: desc,
     })
 }

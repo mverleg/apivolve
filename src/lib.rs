@@ -30,7 +30,7 @@ pub fn apivolve_generate(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
 
 pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
     let evolutions = load_dirs(evolution_dirs)?;
-    let evolutions = linearize(evolutions);
+    let evolutions = linearize(evolutions)?;
     let mut prev_version = Version::new(0, 0, 0);
     if !evolutions.is_empty() && evolutions[0].version != prev_version {
         println!("{}", prev_version);
