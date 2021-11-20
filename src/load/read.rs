@@ -1,11 +1,11 @@
 use ::std::borrow::Borrow;
 use ::std::ffi::OsStr;
+use ::std::fmt;
 use ::std::fs::read_to_string;
 use ::std::hash::Hasher;
 use ::std::io::Write;
+use ::std::path::Path;
 use ::std::path::PathBuf;
-use std::fmt;
-use std::path::Path;
 
 use ::lazy_static::lazy_static;
 use ::regex::Regex;
@@ -102,7 +102,6 @@ fn extract_version(path: &Path) -> ApivResult<Version> {
         || format!("Evolution filename '{}' should follow a strict naming convention - \
         'v1.2.3.apiv' or 'v1.2.3.description.apiv', starting with 'v', three-digit semver, \
         optional description and ending with extension '.apiv'", name))?;
-    dbg!(&groups);  //TODO @mark: TEMPORARY! REMOVE THIS!
     Ok(Version {
         major: groups[1].parse().unwrap(),
         minor: groups[2].parse().unwrap(),

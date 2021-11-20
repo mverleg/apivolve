@@ -1,7 +1,7 @@
 use ::lazy_static::lazy_static;
 use ::regex::Regex;
-use crate::ast::evolution::VersionBump::Patch;
 
+use crate::ast::evolution::VersionBump::Patch;
 use crate::ast::object::ObjectOp;
 use crate::ast::Span;
 

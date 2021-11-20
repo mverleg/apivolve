@@ -1,6 +1,4 @@
-
 use crate::ast::term::Iden;
-
 
 #[derive(Debug)]
 pub struct State {
