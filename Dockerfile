@@ -15,7 +15,7 @@ RUN cargo --offline deny check bans
 RUN cargo --offline outdated --exit-code 1
 
 # Copy the actual code.
-COPY ./build.rs ./grammar.lalrpop ./
+COPY ./build.rs ./grammar.lalrpop ./deny.toml ./
 COPY ./src ./src
 RUN find . -name target -prune -o -type f &&\
     touch -c build.rs src/main.rs src/lib.rs \

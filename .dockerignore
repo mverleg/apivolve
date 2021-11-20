@@ -4,3 +4,4 @@
 !./grammar.lalrpop
 !./build.rs
 !./src/
+!./deny.toml
