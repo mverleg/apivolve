@@ -12,7 +12,7 @@ lazy_static! {
         Regex::new(r"v([0-9]+)\.([0-9]+)\.([0-9]+)(\.[a-zA-Z0-9_\-]+)?\.apiv").unwrap();
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Version {
     major: u32,
     minor: u32,
@@ -21,6 +21,10 @@ pub struct Version {
 }
 
 impl Version {
+    pub fn new(major: u32, minor: u32, patch: u32) -> Self {
+        Version { major, minor, patch, desc: None }
+    }
+
     pub fn pure(&self) -> Version {
         Version {
             major: self.major,
@@ -28,6 +32,18 @@ impl Version {
             patch: self.patch,
             desc: None,
         }
+    }
+
+    pub fn major(&self) -> u32 {
+        self.major
+    }
+
+    pub fn minor(&self) -> u32 {
+        self.minor
+    }
+
+    pub fn patch(&self) -> u32 {
+        self.patch
     }
 }
 
