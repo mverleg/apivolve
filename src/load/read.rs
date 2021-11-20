@@ -16,9 +16,9 @@ use crate::common::ApivResult;
 use crate::load::compile::compile;
 
 lazy_static! {
-    static ref VER_RE: Regex = Regex::new(r"v([0-9]+)\.([0-9]+)\.([0-9]+)(\.[a-zA-Z0-9_\-]+)?\.apiv").unwrap();
+    static ref VER_RE: Regex =
+        Regex::new(r"v([0-9]+)\.([0-9]+)\.([0-9]+)(\.[a-zA-Z0-9_\-]+)?\.apiv").unwrap();
 }
-
 
 #[derive(Debug)]
 pub struct Evolution {
@@ -63,15 +63,33 @@ pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Vec<Evolution>> {
 
 fn load_dir(path: PathBuf) -> ApivResult<Vec<Evolution>> {
     if !path.exists() {
-        return Err(format!("tried to load migrations from directory '{}' but it does not exist", path.to_string_lossy()))
+        return Err(format!(
+            "tried to load migrations from directory '{}' but it does not exist",
+            path.to_string_lossy()
+        ));
     }
     if !path.is_dir() {
-        return Err(format!("tried to load migrations from directory '{}' but it is not a directory", path.to_string_lossy()))
+        return Err(format!(
+            "tried to load migrations from directory '{}' but it is not a directory",
+            path.to_string_lossy()
+        ));
     }
     let mut evolutions = vec![];
-    let dir = path.read_dir().map_err(|err| format!("failed to load migrations from directory '{}' because of a technical problem: {}", path.to_string_lossy(), err))?;
+    let dir = path.read_dir().map_err(|err| {
+        format!(
+            "failed to load migrations from directory '{}' because of a technical problem: {}",
+            path.to_string_lossy(),
+            err
+        )
+    })?;
     for sub in dir {
-        let file = sub.map_err(|err| format!("failed to read entry from directory '{}' because of a technical problem: {}", path.to_string_lossy(), err))?;
+        let file = sub.map_err(|err| {
+            format!(
+                "failed to read entry from directory '{}' because of a technical problem: {}",
+                path.to_string_lossy(),
+                err
+            )
+        })?;
         if file.path().extension() != Some(OsStr::new("apiv")) {
             continue;
         }
@@ -83,7 +101,13 @@ fn load_dir(path: PathBuf) -> ApivResult<Vec<Evolution>> {
 
 fn load_file(path: PathBuf) -> ApivResult<Evolution> {
     let version = extract_version(&path)?;
-    let code = read_to_string(&path).map_err(|err| format!("failed to read migration file '{}' because ofa technical problem: {}", path.to_string_lossy(), err))?;
+    let code = read_to_string(&path).map_err(|err| {
+        format!(
+            "failed to read migration file '{}' because ofa technical problem: {}",
+            path.to_string_lossy(),
+            err
+        )
+    })?;
     let ast = compile(path.to_string_lossy().as_ref(), &code)?;
     Ok(Evolution {
         path,
@@ -94,14 +118,26 @@ fn load_file(path: PathBuf) -> ApivResult<Evolution> {
 }
 
 fn extract_version(path: &Path) -> ApivResult<Version> {
-    let name_os = path.file_name().ok_or_else(
-        || format!("Could not get basename from evolution path '{}'", path.to_string_lossy()))?;
-    let name = name_os.to_str().ok_or_else(
-        || format!("Filename '{}' does not seem to be UTF8-encoded", path.to_string_lossy()))?;
-    let groups = VER_RE.captures(name).ok_or_else(
-        || format!("Evolution filename '{}' should follow a strict naming convention - \
+    let name_os = path.file_name().ok_or_else(|| {
+        format!(
+            "Could not get basename from evolution path '{}'",
+            path.to_string_lossy()
+        )
+    })?;
+    let name = name_os.to_str().ok_or_else(|| {
+        format!(
+            "Filename '{}' does not seem to be UTF8-encoded",
+            path.to_string_lossy()
+        )
+    })?;
+    let groups = VER_RE.captures(name).ok_or_else(|| {
+        format!(
+            "Evolution filename '{}' should follow a strict naming convention - \
         'v1.2.3.apiv' or 'v1.2.3.description.apiv', starting with 'v', three-digit semver, \
-        optional description and ending with extension '.apiv'", name))?;
+        optional description and ending with extension '.apiv'",
+            name
+        )
+    })?;
     Ok(Version {
         major: groups[1].parse().unwrap(),
         minor: groups[2].parse().unwrap(),

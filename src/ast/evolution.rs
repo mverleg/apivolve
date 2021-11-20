@@ -6,7 +6,8 @@ use crate::ast::object::ObjectOp;
 use crate::ast::Span;
 
 lazy_static! {
-    static ref PATH_RE: Regex = Regex::new(r"[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?").unwrap();
+    static ref PATH_RE: Regex =
+        Regex::new(r"[a-zA-Z_][a-zA-Z0-9_]*(/[a-zA-Z_][a-zA-Z0-9_]*)*(.apiv)?").unwrap();
 }
 
 #[derive(Debug)]
@@ -17,7 +18,12 @@ pub struct EvolutionAst {
 }
 
 impl EvolutionAst {
-    pub fn new(apivolve_version: String, bump: Option<(Span, VersionBump)>, depends: Vec<Dependency>, blocks: Vec<Block>) -> Self {
+    pub fn new(
+        apivolve_version: String,
+        bump: Option<(Span, VersionBump)>,
+        depends: Vec<Dependency>,
+        blocks: Vec<Block>,
+    ) -> Self {
         EvolutionAst {
             bump: match bump {
                 Some(bump) => (Some(bump.0), bump.1),
@@ -56,10 +62,7 @@ impl Dependency {
     }
 
     pub fn dynamic(path: Path) -> Self {
-        Dependency {
-            path,
-            hash: None,
-        }
+        Dependency { path, hash: None }
     }
 
     pub fn is_fixed(&self) -> bool {
@@ -75,7 +78,7 @@ pub struct Path {
 impl Path {
     pub fn new(path: &str) -> Self {
         Path {
-            path: path[1 .. path.len() - 1].to_owned(),
+            path: path[1..path.len() - 1].to_owned(),
         }
     }
 

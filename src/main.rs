@@ -1,4 +1,4 @@
-#![allow(unused)]  //TODO temporary
+#![allow(unused)] //TODO temporary
 
 use ::std::path::PathBuf;
 use ::std::process::exit;
@@ -6,8 +6,8 @@ use ::std::process::exit;
 use ::env_logger;
 use ::structopt::StructOpt;
 
-use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next};
 use ::apivolve::ApivResult;
+use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next};
 
 use crate::cli::args::Args;
 use crate::cli::args::Cmd;
@@ -46,9 +46,9 @@ fn collect_directories(evolution_dirs: &[String]) -> Vec<PathBuf> {
     }
     let mut paths = vec![];
     for evolution_path in evolution_dirs {
-        for evolution_dir in evolution_path.split(";") {
+        for evolution_dir in evolution_path.split(';') {
             paths.push(PathBuf::from(evolution_dir))
         }
     }
-    return paths
+    paths
 }

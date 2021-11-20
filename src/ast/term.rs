@@ -1,4 +1,4 @@
-use crate::ast::{Span, span};
+use crate::ast::{span, Span};
 
 #[derive(Debug)]
 pub enum Value {

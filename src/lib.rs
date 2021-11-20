@@ -1,4 +1,4 @@
-#![allow(unused)]  //TODO temporary
+#![allow(unused)] //TODO temporary
 
 use ::std::collections::HashMap;
 use ::std::hash::BuildHasherDefault;
@@ -14,17 +14,16 @@ use crate::merge::linear::linearize;
 
 mod common;
 
-mod load;
 mod ast;
+mod load;
 mod merge;
 
-
 pub fn apivolve_check(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
-    unimplemented!()  //TODO @mark: TEMPORARY! REMOVE THIS!
+    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 pub fn apivolve_generate(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
-    unimplemented!()  //TODO @mark: TEMPORARY! REMOVE THIS!
+    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
@@ -34,11 +33,16 @@ pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
         let mut hasher = Sha256::new();
         evolution.seal(&mut hasher);
         let digest = format!("sha256:{}", base64::encode(hasher.finalize()));
-        println!("{}\t{}\t\"{}\"", &evolution.version, evolution.path.to_string_lossy(), digest);
+        println!(
+            "{}\t{}\t\"{}\"",
+            &evolution.version,
+            evolution.path.to_string_lossy(),
+            digest
+        );
     }
     Ok(())
 }
 
 pub fn apivolve_next(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
-    unimplemented!()  //TODO @mark: TEMPORARY! REMOVE THIS!
+    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }

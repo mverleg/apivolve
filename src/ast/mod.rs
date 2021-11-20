@@ -1,8 +1,8 @@
 use ::std::fmt;
 
+pub mod evolution;
 pub mod object;
 pub mod term;
-pub mod evolution;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Span {
