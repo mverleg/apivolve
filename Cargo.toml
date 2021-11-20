@@ -1,6 +1,7 @@
 [package]
 name = "apivolve"
 version = "0.1.0"
+description = "Apivolve is an API evolution tool, it helps keep your APIs backwards compatible yet clean, and generates client/server code in a variety of languages."
 edition = "2021"
 publish = true
 license = "Apache-2.0"
