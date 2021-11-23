@@ -12,6 +12,7 @@ Evolution files describe the changes made to the api. They should be grouped int
 * Fixed version after release, that is easy to find from the source.
 * Strict validation of changes, flag all backwards incompatible changes.
 * Before release, making changes should be easy, but have full validation.
+* Pending changes and identical released changes should behave the same.
 * Breaking changes must bump major version. New endpoints must bump minor version.
 * When merging VCS branches, avoid unnecessary manual merging.
 * When merging VCS branches, avoid getting invalid results without merge conflict.
@@ -21,9 +22,24 @@ Evolution files describe the changes made to the api. They should be grouped int
 
 ### Solution
 
-TODO
+This is a draft, not set in stone:
 
+* An evolution file contains a group of functionally related changes.
+* Pending changes live at the top level of the apivolve directory.
+* When making a release:
+  1. The pending changes are scanned to see major, minor or patch should be bumped.
+  2. A directory named after the version is created (v1.2.3) in evolution directory.
+  3. Unless filtered by CLI arguments, all evolutions are moved to the directory.
+  4. A special file is created containing 1) the previous version and its hash and 2) the new evolution hash. (This file also helps create a merge conflict when two branches release the same version.)
+  5. Hash does not include comments, descriptions or valid examples.
+* This can be done on some schedule, of after each change.
 
+Questions remaining:
+
+* Should pending changes be in a separate directory, or top level?
+* How is the order of changes in a version determined? Or must it always be idempotent unless dependencies are specified explicitly? 
+* How to deal with multiple evolution directories?
+* Is there a way to get merge conflicts for conflicting changes? E.g. evolution filename is endpoint or object name?
 
 ## Goals
 
