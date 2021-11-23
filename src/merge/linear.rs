@@ -13,7 +13,7 @@ pub fn linearize(mut evolutions: Vec<Evolution>) -> ApivResult<Vec<Evolution>> {
             return Err(format!("Found a version {} but not the expected predecessor {}", &version, version.ancestor()));
         }
         for deps in &evolution.depends {
-            deps
+            //deps
         }
 
         seen.insert(version);

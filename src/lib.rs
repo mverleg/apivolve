@@ -66,3 +66,7 @@ pub fn depth(prev: &Version, cur: &Version) -> u8 {
 pub fn apivolve_next(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
     unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
+
+pub fn apivolve_release(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
+    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
+}

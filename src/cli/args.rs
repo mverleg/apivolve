@@ -16,6 +16,8 @@ pub struct Args {
 
 #[derive(Debug, StructOpt)]
 pub enum Cmd {
+    #[structopt(about = "List all the evolutions in valid resolution order")]
+    List {},
     #[structopt(about = "Check that the API can be upgraded by running all evolutions")]
     Check {},
     #[structopt(about = "Generate the API code for a specific target(s)")]
@@ -23,8 +25,8 @@ pub enum Cmd {
         #[structopt(required = true)]
         target: Vec<String>,
     },
-    #[structopt(about = "List all the evolutions in valid resolution order")]
-    List {},
     #[structopt(about = "Create a new evolutions file at the head of the current chain")]
     New {},
+    #[structopt(about = "Combine current pending changes into a release")]
+    Release {},
 }

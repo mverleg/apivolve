@@ -6,8 +6,8 @@ use ::std::process::exit;
 use ::env_logger;
 use ::structopt::StructOpt;
 
+use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next, apivolve_release};
 use ::apivolve::ApivResult;
-use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next};
 
 use crate::cli::args::Args;
 use crate::cli::args::Cmd;
@@ -36,6 +36,7 @@ pub fn run(args: &Args) -> ApivResult<()> {
         Cmd::Gen { .. } => apivolve_generate(dirs),
         Cmd::List { .. } => apivolve_list(dirs),
         Cmd::New { .. } => apivolve_next(dirs),
+        Cmd::Release { .. } => apivolve_release(dirs),
     }?;
     Ok(())
 }
