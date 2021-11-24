@@ -12,7 +12,6 @@ use ::sha2::Sha256;
 pub use crate::common::ApivResult;
 use crate::load::read::load_dirs;
 use crate::load::version::Version;
-use crate::merge::linear::linearize;
 
 mod common;
 
@@ -30,7 +29,6 @@ pub fn apivolve_generate(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
 
 pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
     let evolutions = load_dirs(evolution_dirs)?;
-    let evolutions = linearize(evolutions)?;
     let mut prev_version = Version::new(0, 0, 0);
     if !evolutions.is_empty() && evolutions[0].version != prev_version {
         println!("{}", prev_version);

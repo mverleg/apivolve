@@ -16,35 +16,7 @@ use crate::common::ApivResult;
 use crate::load::compile::compile;
 use crate::load::version::{extract_version, Version};
 
-/// Sorted and non-empty
-#[derive(Debug)]
-pub struct Evolutions {
-    version: Version,
-    evolutions: Vec<Evolution>
-}
-
-impl Evolutions {
-    pub fn from(version: Version, evolutions: Vec<Evolution>) -> Self {
-        Evolutions { version, evolutions }
-    }
-}
-
-#[derive(Debug)]
-pub struct Evolution {
-    pub path: PathBuf,
-    pub depends: Vec<Dependency>,
-    pub blocks: Vec<Block>,
-}
-
-impl Evolution {
-    pub fn seal(&self, hasher: &mut impl Update) {
-        //TODO @mark:
-        hasher.update((self.depends.len() as u32).to_le_bytes());
-        hasher.update((self.blocks.len() as u32).to_le_bytes());
-    }
-}
-
-pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Evolutions> {
+pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<SortedMap<Version, Evolutions>> {
     let mut evolutions = vec![];
     for path in paths {
         evolutions.extend(load_dir(path)?);
@@ -102,7 +74,6 @@ fn load_file(path: PathBuf) -> ApivResult<Evolution> {
     let ast = compile(path.to_string_lossy().as_ref(), &code)?;
     Ok(Evolution {
         path,
-        version,
         depends: ast.depends,
         blocks: ast.blocks,
     })
