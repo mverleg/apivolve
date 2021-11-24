@@ -1,30 +1,31 @@
 use std::path::PathBuf;
+use std::ptr::hash;
 use std::slice::Iter;
+
 use sha2::digest::Update;
+
 use crate::ast::evolution::{Block, Dependency};
-use crate::merge::linear::linearize;
 use crate::Version;
 
 /// Sorted and non-empty
 #[derive(Debug)]
-pub struct VersionEvolutions {
-    version: Option<Version>,
+pub struct Evolutions {
     evolutions: Vec<Evolution>,
 }
 
-impl VersionEvolutions {
-    pub fn from(version: Option<Version>, evolutions: Vec<Evolution>) -> Self {
-        //TODO @mark: linearize
-        linearize;
-        VersionEvolutions { version, evolutions }
+impl Evolutions {
+    pub fn from(evolutions: Vec<Evolution>) -> Self {
+        Evolutions { evolutions }
     }
 
-    pub fn is_pending(&self) -> bool {
-        self.version.is_none()
+    pub fn seal(&self, hasher: &mut impl Update) {
+        for evolution in &self.evolutions {
+            evolution.seal(hasher);
+        }
     }
 }
 
-impl <'a> IntoIterator for &'a VersionEvolutions {
+impl <'a> IntoIterator for &'a Evolutions {
     type Item = &'a Evolution;
     type IntoIter = Iter<'a, Evolution>;
 

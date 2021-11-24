@@ -1,4 +1,5 @@
 use ::std::borrow::Borrow;
+use ::std::collections::BTreeMap;
 use ::std::ffi::OsStr;
 use ::std::fmt;
 use ::std::fs::read_to_string;
@@ -14,9 +15,10 @@ use ::sha2::digest::Update;
 use crate::ast::evolution::{Block, Dependency};
 use crate::common::ApivResult;
 use crate::load::compile::compile;
+use crate::load::evolution::{Evolution, Evolutions};
 use crate::load::version::{extract_version, Version};
 
-pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<SortedMap<Version, Evolutions>> {
+pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<BTreeMap<Version, Evolutions>> {
     let mut evolutions = vec![];
     for path in paths {
         evolutions.extend(load_dir(path)?);

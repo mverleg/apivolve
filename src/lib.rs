@@ -30,22 +30,28 @@ pub fn apivolve_generate(_evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
 pub fn apivolve_list(evolution_dirs: Vec<PathBuf>) -> ApivResult<()> {
     let evolutions = load_dirs(evolution_dirs)?;
     let mut prev_version = Version::new(0, 0, 0);
-    if !evolutions.is_empty() && evolutions[0].version != prev_version {
+    if !evolutions.iter().next().map(|kv| kv.0 != &prev_version).unwrap_or(true) {
         println!("{}", prev_version);
     }
-    for evolution in evolutions {
+    for (version, evolutions) in evolutions {
         let mut hasher = Sha256::new();
-        evolution.seal(&mut hasher);
+        evolutions.seal(&mut hasher);
         let digest = format!("sha256:{}", base64::encode(hasher.finalize()));
-        let depth = depth(&prev_version, &evolution.version) as usize;
-        prev_version = evolution.version.clone();
+        let depth = depth(&prev_version, &version) as usize;
+        prev_version = version.clone();
         println!(
-            "{}{}\t\"{}\"\t\"{}\"",
+            "{}{}\t\"{}\"",
             "  ".repeat(depth),
-            &evolution.version.pure(),
-            evolution.path.to_string_lossy(),
+            &version,
             digest,
         );
+        for evolution in &evolutions {
+            println!(
+                "{}  \t\"{}\"",
+                "  ".repeat(depth),
+                evolution.path.to_string_lossy(),
+            );
+        }
     }
     Ok(())
 }
