@@ -16,10 +16,22 @@ use crate::common::ApivResult;
 use crate::load::compile::compile;
 use crate::load::version::{extract_version, Version};
 
+/// Sorted and non-empty
+#[derive(Debug)]
+pub struct Evolutions {
+    version: Version,
+    evolutions: Vec<Evolution>
+}
+
+impl Evolutions {
+    pub fn from(version: Version, evolutions: Vec<Evolution>) -> Self {
+        Evolutions { version, evolutions }
+    }
+}
+
 #[derive(Debug)]
 pub struct Evolution {
     pub path: PathBuf,
-    pub version: Version,
     pub depends: Vec<Dependency>,
     pub blocks: Vec<Block>,
 }
@@ -32,15 +44,15 @@ impl Evolution {
     }
 }
 
-pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Vec<Evolution>> {
+pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<Evolutions> {
     let mut evolutions = vec![];
     for path in paths {
         evolutions.extend(load_dir(path)?);
     }
-    Ok(evolutions)
+    Ok(Evolutions::from(evolutions))
 }
 
-fn load_dir(path: PathBuf) -> ApivResult<Vec<Evolution>> {
+fn load_dir(path: PathBuf) -> ApivResult<Evolutions> {
     if !path.exists() {
         return Err(format!(
             "tried to load migrations from directory '{}' but it does not exist",

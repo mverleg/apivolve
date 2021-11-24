@@ -1,9 +1,9 @@
 use ::std::collections::HashSet;
 
 use crate::{ApivResult, Version};
-use crate::load::read::Evolution;
+use crate::load::read::{Evolution, Evolutions};
 
-pub fn linearize(mut evolutions: Vec<Evolution>) -> ApivResult<Vec<Evolution>> {
+pub fn linearize(mut evolutions: Evolutions) -> ApivResult<Vec<Evolution>> {
     let mut seen = HashSet::new();
     seen.insert(Version::zero());
     evolutions.sort_by(|left, right| left.version.cmp(&right.version));

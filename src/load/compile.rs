@@ -16,29 +16,20 @@ pub mod grammar {
     lalrpop_mod!(pub grammar);
 }
 
+#[rustfmt::skip]
 pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
     match evolutionParser::new().parse(code) {
         Ok(ast) => Ok(ast),
         Err(err) => Err(match err {
             ParseError::InvalidToken { location } => {
                 let (line, col) = source_line_col(code, location);
-                format!(
-                    "Invalid code in {}:{}:{}\n{}",
-                    identifier,
-                    line + 1,
-                    col + 1,
-                    source_loc_repr(code, line, col, 1)
-                )
+                format!("Invalid code in {}:{}:{}\n{}", identifier,
+                        line + 1, col + 1, source_loc_repr(code, line, col, 1))
             }
             ParseError::UnrecognizedEOF { location, expected } => {
                 let (line, col) = source_line_col(code, location);
-                format!(
-                    "Unexpected end in {}:{}:{}\n{}{}",
-                    identifier,
-                    line + 1,
-                    col + 1,
-                    source_loc_repr(code, line, col, 1),
-                    fmt_expected_tokens(&expected)
+                format!("Unexpected end in {}:{}:{}\n{}{}", identifier, line + 1, col + 1,
+                        source_loc_repr(code, line, col, 1), fmt_expected_tokens(&expected)
                 )
             }
             ParseError::UnrecognizedToken {
@@ -46,25 +37,16 @@ pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
                 expected,
             } => {
                 let (line, col) = source_line_col(code, start);
-                format!(
-                    "Unexpected code in {}:{}:{}\n{}{}",
-                    identifier,
-                    line + 1,
-                    col + 1,
-                    source_loc_repr(code, line, col, max(1, end - start)),
-                    fmt_expected_tokens(&expected)
+                format!("Unexpected code in {}:{}:{}\n{}{}", identifier, line + 1, col + 1,
+                        source_loc_repr(code, line, col, max(1, end - start)), fmt_expected_tokens(&expected)
                 )
             }
             ParseError::ExtraToken {
                 token: (start, _, end),
             } => {
                 let (line, col) = source_line_col(code, start);
-                format!(
-                    "Invalid token in {}:{}:{}\n{}",
-                    identifier,
-                    line + 1,
-                    col + 1,
-                    source_loc_repr(code, line, col, max(1, end - start))
+                format!("Invalid token in {}:{}:{}\n{}", identifier, line + 1, col + 1,
+                        source_loc_repr(code, line, col, max(1, end - start))
                 )
             }
             ParseError::User { error } => {
@@ -99,6 +81,7 @@ fn source_line_col(code: &str, start: usize) -> (usize, usize) {
     (err_line_nr, err_char_in_line)
 }
 
+#[rustfmt::skip]
 fn source_loc_repr(code: &str, err_line: usize, err_col: usize, len: usize) -> String {
     assert!(len >= 1);
     let mut locator = String::with_capacity(160);
@@ -107,18 +90,8 @@ fn source_loc_repr(code: &str, err_line: usize, err_col: usize, len: usize) -> S
             writeln!(locator, "{:3} | {}", line_nr + 1, line);
         }
         if line_nr == err_line {
-            writeln!(
-                locator,
-                "      {}{} {}{}",
-                " ".repeat(err_col),
-                "^".repeat(len),
-                err_col + 1,
-                if len > 1 {
-                    format!("-{}", err_col + len)
-                } else {
-                    "".to_owned()
-                }
-            );
+            let end_loc = if len > 1 { format!("-{}", err_col + len) } else { "".to_owned() };
+            writeln!(locator, "      {}{} {}{}", " ".repeat(err_col), "^".repeat(len), err_col + 1, end_loc);
         }
         if line_nr > err_line + 2 {
             break;
