@@ -18,15 +18,7 @@ use crate::load::compile::compile;
 use crate::load::evolution::{Evolution, Evolutions};
 use crate::load::version::{extract_version, Version};
 
-pub fn load_dirs(paths: Vec<PathBuf>) -> ApivResult<BTreeMap<Version, Evolutions>> {
-    let mut evolutions = vec![];
-    for path in paths {
-        evolutions.extend(load_dir(path)?);
-    }
-    Ok(Evolutions::from(evolutions))
-}
-
-fn load_dir(path: PathBuf) -> ApivResult<Evolutions> {
+pub fn load_dir(path: PathBuf) -> ApivResult<(Evolutions, BTreeMap<Version, Evolutions>)> {
     if !path.exists() {
         return Err(format!(
             "tried to load migrations from directory '{}' but it does not exist",

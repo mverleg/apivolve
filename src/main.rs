@@ -30,26 +30,13 @@ fn main() {
 }
 
 pub fn run(args: &Args) -> ApivResult<()> {
-    let mut dirs = collect_directories(&args.evolution_dirs);
+    let mut dir = PathBuf::from(&args.evolution_dir);
     match args.cmd {
-        Cmd::Check { .. } => apivolve_check(dirs),
-        Cmd::Gen { .. } => apivolve_generate(dirs),
-        Cmd::List { .. } => apivolve_list(dirs),
-        Cmd::New { .. } => apivolve_next(dirs),
-        Cmd::Release { .. } => apivolve_release(dirs),
+        Cmd::Check { .. } => apivolve_check(dir),
+        Cmd::Gen { .. } => apivolve_generate(dir),
+        Cmd::List { .. } => apivolve_list(dir),
+        Cmd::New { .. } => apivolve_next(dir),
+        Cmd::Release { .. } => apivolve_release(dir),
     }?;
     Ok(())
-}
-
-fn collect_directories(evolution_dirs: &[String]) -> Vec<PathBuf> {
-    if evolution_dirs.is_empty() {
-        return vec![PathBuf::from(DEFAULT_EVOLUTION_DIR)];
-    }
-    let mut paths = vec![];
-    for evolution_path in evolution_dirs {
-        for evolution_dir in evolution_path.split(';') {
-            paths.push(PathBuf::from(evolution_dir))
-        }
-    }
-    paths
 }

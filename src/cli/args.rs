@@ -9,7 +9,7 @@ pub static DEFAULT_EVOLUTION_DIR: &str = "./apivolve";
 )]
 pub struct Args {
     #[structopt(long = "evolution-path", short = "d", default_value=DEFAULT_EVOLUTION_DIR, env = "APIVOLVE_EVOLUTION_PATH")]
-    pub evolution_dirs: Vec<String>,
+    pub evolution_dir: String,
     #[structopt(subcommand)]
     pub cmd: Cmd,
 }
@@ -28,5 +28,8 @@ pub enum Cmd {
     #[structopt(about = "Create a new evolutions file at the head of the current chain")]
     New {},
     #[structopt(about = "Combine current pending changes into a release")]
-    Release {},
+    Release {
+        // #[structopt(short, long, about = "Squash all the evolutions into one file per version")]
+        // squash: bool,
+    },
 }
