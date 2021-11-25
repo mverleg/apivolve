@@ -8,7 +8,7 @@ use ::regex::Regex;
 use crate::ApivResult;
 
 lazy_static! {
-    static ref VER_RE: Regex =
+    static ref VERSION_RE: Regex =
         Regex::new(r"v([0-9]+)\.([0-9]+)\.([0-9]+)(\.[a-zA-Z0-9_\-]+)?\.apiv").unwrap();
 }
 
@@ -113,11 +113,11 @@ pub fn extract_version(path: &Path) -> ApivResult<Version> {
             path.to_string_lossy()
         )
     })?;
-    let groups = VER_RE.captures(name).ok_or_else(|| {
+    let groups = VERSION_RE.captures(name).ok_or_else(|| {
         format!(
             "Evolution filename '{}' should follow a strict naming convention - \
-        'v1.2.3.apiv' or 'v1.2.3.description.apiv', starting with 'v', three-digit semver, \
-        optional description and ending with extension '.apiv'",
+            'v1.2.3.apiv' or 'v1.2.3.description.apiv', starting with 'v', three-digit semver, \
+            optional description and ending with extension '.apiv'",
             name
         )
     })?;

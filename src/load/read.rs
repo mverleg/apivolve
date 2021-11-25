@@ -7,6 +7,7 @@ use ::std::hash::Hasher;
 use ::std::io::Write;
 use ::std::path::Path;
 use ::std::path::PathBuf;
+use std::fs::{DirEntry, ReadDir};
 
 use ::lazy_static::lazy_static;
 use ::regex::Regex;
@@ -18,7 +19,38 @@ use crate::load::compile::compile;
 use crate::load::evolution::{Evolution, Evolutions};
 use crate::load::version::{extract_version, Version};
 
+lazy_static! {
+    static ref PARTIAL_VERSION_RE: Regex =
+        Regex::new(r"v([0-9]+)(\.([0-9]+)(\.([0-9]+))?)?\.apiv").unwrap();
+}
+
 pub fn load_dir(path: PathBuf) -> ApivResult<(Evolutions, BTreeMap<Version, Evolutions>)> {
+    let mut evolutions = vec![];
+    for entry in read_dir(&path)? {
+        if entry.path().is_dir() {
+            //TODO @mark: should I validate all dirs, or just the ones that have .apiv files?
+            let groups = PARTIAL_VERSION_RE.captures(name).ok_or_else(|| {
+                format!(
+                    "Evolution directory '{}' should follow a strict naming convention - \
+            'v1.2.3.apiv' or 'v1.2.3.description.apiv', starting with 'v', three-digit semver, \
+            optional description and ending with extension '.apiv'",
+                    name
+                )
+            })?;
+            groups.get(1).unwrap().parse().unwrap()
+            //TODO @mark: handle dir
+        } else if file.path().is_file() {
+            if file.path().extension() != Some(OsStr::new("apiv")) {
+                continue
+            }
+            let evolution = load_file(file.path().to_path_buf())?;
+            evolutions.push(evolution);
+        }
+    }
+    Ok(evolutions)
+}
+
+fn read_dir(path: &PathBuf) -> ApivResult<Vec<DirEntry>> {
     if !path.exists() {
         return Err(format!(
             "tried to load migrations from directory '{}' but it does not exist",
@@ -31,7 +63,6 @@ pub fn load_dir(path: PathBuf) -> ApivResult<(Evolutions, BTreeMap<Version, Evol
             path.to_string_lossy()
         ));
     }
-    let mut evolutions = vec![];
     let dir = path.read_dir().map_err(|err| {
         format!(
             "failed to load migrations from directory '{}' because of a technical problem: {}",
@@ -39,21 +70,15 @@ pub fn load_dir(path: PathBuf) -> ApivResult<(Evolutions, BTreeMap<Version, Evol
             err
         )
     })?;
-    for sub in dir {
-        let file = sub.map_err(|err| {
+    dir.into_iter()
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|err| {
             format!(
                 "failed to read entry from directory '{}' because of a technical problem: {}",
                 path.to_string_lossy(),
                 err
             )
-        })?;
-        if file.path().extension() != Some(OsStr::new("apiv")) {
-            continue;
-        }
-        let evolution = load_file(file.path().to_path_buf())?;
-        evolutions.push(evolution);
-    }
-    Ok(evolutions)
+        })
 }
 
 fn load_file(path: PathBuf) -> ApivResult<Evolution> {
