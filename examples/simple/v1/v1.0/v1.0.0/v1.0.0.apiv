@@ -1,0 +1,4 @@
+apivolve v0.1
+
+depends on "v1/v1.0/v1.0.0/add_user" hash "sha256:AazstQer/ho1SqgGT0r10/Gs0BnjfbPBHJdSO3HHbp0="
+

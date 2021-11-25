@@ -1,0 +1,5 @@
+apivolve v0.1
+
+depends on "v1/v1.0/v1.0.0/v1.0.0" hash "sha256:AazstQer/ho1SqgGT0r10/Gs0BnjfbPBHJdSO3HHbp0="
+depends on "v1/v1.0/v1.0.1/user_add_birthday" hash "sha256:AazstQer/ho1SqgGT0r10/Gs0BnjfbPBHJdSO3HHbp0="
+
