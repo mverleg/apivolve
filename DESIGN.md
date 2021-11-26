@@ -20,6 +20,8 @@ Evolution files describe the changes made to the api. They should be grouped int
 * Nice to have, probably hard: creating a release on feature branch should not conflict.
 * Nice to have: preserve VCS blame when releasing.
 
+The versions can be linear for now. For example, 1.2.3 is either direcrtly followed by 1.2.4 or by 1.3.0, but not both. It is not supported to keep updating the 1.2 branch once 1.3 has been created. The main purpose of Apivolve is to have all olders versions be compatible, so there should be no need to support 1.2.4.
+
 ### Solution
 
 This is a draft, not set in stone:
