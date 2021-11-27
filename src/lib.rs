@@ -29,9 +29,9 @@ pub fn apivolve_generate(evolution_dir: PathBuf) -> ApivResult<()> {
 }
 
 pub fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<()> {
-    let (pending, versioned) = load_dir(evolution_dir)?;
+    let evolutions = load_dir(evolution_dir)?;
     let mut prev_version = Version::new(0, 0, 0);
-    if !versioned.iter().next().map(|kv| kv.0 != &prev_version).unwrap_or(true) {
+    if !evolutions.released().iter().next().map(|kv| kv.0 != &prev_version).unwrap_or(true) {
         println!("{}", prev_version);
     }
     for (version, evolutions) in versioned {
@@ -43,8 +43,12 @@ pub fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<()> {
         println!("{}{}\t\"{}\"", "  ".repeat(depth), &version, digest, );
         print_evolutions(&evolutions, depth)
     }
-    println!("pending");
-    print_evolutions(&pending, 0);
+    if let Some(pending) = evolutions.pending() {
+        println!("pending");
+        print_evolutions(pending, 0);
+    } else {
+        println!("pending: none");
+    }
     Ok(())
 }
 

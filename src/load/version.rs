@@ -9,7 +9,7 @@ use crate::ApivResult;
 
 lazy_static! {
     static ref VERSION_RE: Regex =
-        Regex::new(r"v([0-9]+)\.([0-9]+)\.([0-9]+)(\.[a-zA-Z0-9_\-]+)?\.apiv").unwrap();
+        Regex::new(r"^v([0-9]+)\.([0-9]+)\.([0-9]+)(\.[a-zA-Z0-9_\-]+)?$").unwrap();
 }
 
 #[derive(Debug, Clone, Hash)]
@@ -17,6 +17,24 @@ pub struct Version {
     major: u32,
     minor: u32,
     patch: u32,
+}
+
+impl TryFrom<&str> for Version {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let groups = VERSION_RE.captures(value).ok_or_else(|| {
+            format!("version should be a 'v' and 3 numbers separated by periods, like v1.2.3, not '{}'", &value) })?;
+        let desc = groups.get(4).map(|m| m.as_str().to_owned());
+        if let Some(desc) = desc {
+            return Err(format!("version should be just 3 numbers, a suffix '{}' is not allowed", &desc));
+        }
+        Ok(Version {
+            major: groups[1].parse().unwrap(),
+            minor: groups[2].parse().unwrap(),
+            patch: groups[3].parse().unwrap(),
+        })
+    }
 }
 
 impl Version {
@@ -98,40 +116,4 @@ impl fmt::Display for Version {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
     }
-}
-
-pub fn extract_version(path: &Path) -> ApivResult<Version> {
-    let name_os = path.file_name().ok_or_else(|| {
-        format!(
-            "Could not get basename from evolution path '{}'",
-            path.to_string_lossy()
-        )
-    })?;
-    let name = name_os.to_str().ok_or_else(|| {
-        format!(
-            "Filename '{}' does not seem to be UTF8-encoded",
-            path.to_string_lossy()
-        )
-    })?;
-    let groups = VERSION_RE.captures(name).ok_or_else(|| {
-        format!(
-            "Evolution filename '{}' should follow a strict naming convention - \
-            'v1.2.3.apiv' or 'v1.2.3.description.apiv', starting with 'v', three-digit semver, \
-            optional description and ending with extension '.apiv'",
-            name
-        )
-    })?;
-    let desc = groups.get(4).map(|m| m.as_str().to_owned());
-    if let Some(desc) = desc {
-        //TODO: should descriptions be allowed? it is very helpful, but increases the chance to have duplicate versions without conflicts
-        return Err(format!(
-            "Filename should be just a version of 3 numbers, not '{}' in '{}'",
-            &desc, path.to_string_lossy()
-        ));
-    }
-    Ok(Version {
-        major: groups[1].parse().unwrap(),
-        minor: groups[2].parse().unwrap(),
-        patch: groups[3].parse().unwrap(),
-    })
 }
