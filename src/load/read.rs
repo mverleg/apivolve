@@ -29,27 +29,33 @@ pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<(Evolutions, BTreeMap<Versi
     for top_entry in read_dir(&apivdir_path)? {
         let top_path = top_entry.path();
         if top_path.is_dir() {
+            let version_dir_name = top_path.file_name()
+                .ok_or_else(|| format!("could not get name for directory '{}'", top_path.to_string_lossy()))?
+                .to_str()
+                .ok_or_else(|| format!("name for directory '{}' does not seem to be unicode", top_path.to_string_lossy()))?;
             let mut version_evolutions = vec![];
             for released_entry in read_dir(top_path.as_path())? {
-                version_evolutions.push(todo);
+                let released_path = released_entry.path();
+                if released_path.extension() != Some(OsStr::new("apiv")) {
+                    continue
+                }
+                let evolution = load_file(released_path.to_path_buf())?;
+                version_evolutions.push(evolution);
             }
             if version_evolutions.is_empty() {
                 debug!("skipping directory '{}' because it does not contain evolution files (non-recursive)", top_path.to_string_lossy());
                 continue;
             }
-            let groups = VERSION_RE.captures(name).ok_or_else(|| {
-                format!("Evolution directory '{}' should follow a strict naming convention - 'v1.2.3', starting with 'v', three-digit semver, no description or postfix or extension", name)
+            let groups = VERSION_RE.captures(version_dir_name).ok_or_else(|| {
+                format!("evolution directory '{}' should follow a strict naming convention - 'v1.2.3', starting with 'v', three-digit semver, no description or postfix or extension", top_path.to_string_lossy())
             })?;
-
-            //TODO @mark: should I validate all dirs, or just the ones that have .apiv files?
-
-            groups.get(1).unwrap().parse().unwrap()
-            //TODO @mark: handle dir
-        } else if file.path().is_file() {
-            if file.path().extension() != Some(OsStr::new("apiv")) {
+            evolutions.push()
+            //groups.get(1).unwrap().parse().unwrap()
+        } else if top_path.is_file() {
+            if top_path.extension() != Some(OsStr::new("apiv")) {
                 continue
             }
-            let evolution = load_file(file.path().to_path_buf())?;
+            let evolution = load_file(top_path.to_path_buf())?;
             evolutions.push(evolution);
         }
     }
