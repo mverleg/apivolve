@@ -1,11 +1,32 @@
-use std::path::PathBuf;
-use std::ptr::hash;
-use std::slice::Iter;
+use ::std::collections::BTreeMap;
+use ::std::path::PathBuf;
+use ::std::ptr::hash;
+use ::std::slice::Iter;
 
-use sha2::digest::Update;
+use ::sha2::digest::Update;
 
 use crate::ast::evolution::{Block, Dependency};
 use crate::Version;
+
+#[derive(Debug)]
+pub struct FullEvolution {
+    released: BTreeMap<Version, Evolutions>,
+    pending: Option<Evolutions>,
+}
+
+impl FullEvolution {
+    pub fn new(released: BTreeMap<Version, Evolutions>, pending: Option<Evolutions>,) -> Self {
+        FullEvolution { released, pending }
+    }
+
+    pub fn released(&self) -> &BTreeMap<Version, Evolutions> {
+        &self.released
+    }
+
+    pub fn pending(&self) -> &Option<Evolutions> {
+        &self.pending
+    }
+}
 
 /// Sorted and non-empty
 #[derive(Debug)]
@@ -15,7 +36,15 @@ pub struct Evolutions {
 
 impl Evolutions {
     pub fn from(evolutions: Vec<Evolution>) -> Self {
+        assert!(!evolutions.is_empty());
         Evolutions { evolutions }
+    }
+
+    pub fn from_if_any(evolutions: Vec<Evolution>) -> Option<Self> {
+        if evolutions.is_empty() {
+            return None
+        }
+        Some(Self::from(evolutions))
     }
 
     pub fn seal(&self, hasher: &mut impl Update) {

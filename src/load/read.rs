@@ -17,15 +17,16 @@ use ::log::debug;
 use crate::ast::evolution::{Block, Dependency};
 use crate::common::ApivResult;
 use crate::load::compile::compile;
-use crate::load::evolution::{Evolution, Evolutions};
+use crate::load::evolution::{Evolution, Evolutions, FullEvolution};
 use crate::load::version::{extract_version, Version};
 
 lazy_static! {
     static ref VERSION_RE: Regex = Regex::new(r"v([0-9]+)([0-9]+)([0-9]+)\.apiv").unwrap();
 }
 
-pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<(Evolutions, BTreeMap<Version, Evolutions>)> {
-    let mut evolutions = vec![];
+pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<FullEvolution> {
+    //TODO @mark: maybe scan with infinite recursion to warn about .apiv files being ignored
+    let mut evolutions = BTreeMap::new();
     for top_entry in read_dir(&apivdir_path)? {
         let top_path = top_entry.path();
         if top_path.is_dir() {
@@ -33,15 +34,7 @@ pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<(Evolutions, BTreeMap<Versi
                 .ok_or_else(|| format!("could not get name for directory '{}'", top_path.to_string_lossy()))?
                 .to_str()
                 .ok_or_else(|| format!("name for directory '{}' does not seem to be unicode", top_path.to_string_lossy()))?;
-            let mut version_evolutions = vec![];
-            for released_entry in read_dir(top_path.as_path())? {
-                let released_path = released_entry.path();
-                if released_path.extension() != Some(OsStr::new("apiv")) {
-                    continue
-                }
-                let evolution = load_file(released_path.to_path_buf())?;
-                version_evolutions.push(evolution);
-            }
+            let version_evolutions = load_all_in_dir(top_path.as_path())?;
             if version_evolutions.is_empty() {
                 debug!("skipping directory '{}' because it does not contain evolution files (non-recursive)", top_path.to_string_lossy());
                 continue;
@@ -49,17 +42,12 @@ pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<(Evolutions, BTreeMap<Versi
             let groups = VERSION_RE.captures(version_dir_name).ok_or_else(|| {
                 format!("evolution directory '{}' should follow a strict naming convention - 'v1.2.3', starting with 'v', three-digit semver, no description or postfix or extension", top_path.to_string_lossy())
             })?;
-            evolutions.push()
             //groups.get(1).unwrap().parse().unwrap()
-        } else if top_path.is_file() {
-            if top_path.extension() != Some(OsStr::new("apiv")) {
-                continue
-            }
-            let evolution = load_file(top_path.to_path_buf())?;
-            evolutions.push(evolution);
+            evolutions.insert(version, Evolutions::from(version_evolutions))
         }
     }
-    Ok(evolutions)
+    let pending_evolutions = load_all_in_dir(&apivdir_path)?;
+    Ok(FullEvolution::new(evolutions, Evolutions::from_if_any(pending_evolutions)))
 }
 
 fn read_dir(path: &Path) -> ApivResult<Vec<DirEntry>> {
@@ -91,6 +79,20 @@ fn read_dir(path: &Path) -> ApivResult<Vec<DirEntry>> {
                 err
             )
         })
+}
+
+/// Load all .apiv files in directory, ignore everything else.
+fn load_all_in_dir(path: &Path) -> ApivResult<Vec<Evolution>> {
+    let mut evolutions = vec![];
+    for released_entry in read_dir(top_path.as_path())? {
+        let released_path = released_entry.path();
+        if released_path.extension() != Some(OsStr::new("apiv")) {
+            continue
+        }
+        let evolution = load_file(released_path.to_path_buf())?;
+        evolutions.push(evolution);
+    }
+    Ok(evolutions)
 }
 
 fn load_file(path: PathBuf) -> ApivResult<Evolution> {
