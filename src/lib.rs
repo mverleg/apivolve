@@ -34,7 +34,7 @@ pub fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<()> {
     if !evolutions.released().iter().next().map(|kv| kv.0 != &prev_version).unwrap_or(true) {
         println!("{}", prev_version);
     }
-    for (version, evolutions) in versioned {
+    for (version, evolutions) in evolutions.released() {
         let mut hasher = Sha256::new();
         evolutions.seal(&mut hasher);
         let digest = format!("sha256:{}", base64::encode(hasher.finalize()));

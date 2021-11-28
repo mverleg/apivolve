@@ -36,7 +36,7 @@ pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<FullEvolution> {
             }
             let version = Version::try_from(version_dir_name).map_err(
                 |err| format!("problem with evolution directory '{}': {}", err, path.to_string_lossy()))?;
-            evolutions.insert(version, Evolutions::from(version_evolutions))
+            evolutions.insert(version, Evolutions::from(version_evolutions));
         }
     }
     let pending_evolutions = load_all_in_dir(&apivdir_path)?;
@@ -77,7 +77,7 @@ fn read_dir(path: &Path) -> ApivResult<Vec<DirEntry>> {
 /// Load all .apiv files in directory, ignore everything else.
 fn load_all_in_dir(path: &Path) -> ApivResult<Vec<Evolution>> {
     let mut evolutions = vec![];
-    for released_entry in read_dir(path.as_path())? {
+    for released_entry in read_dir(path)? {
         let released_path = released_entry.path();
         if released_path.extension() != Some(OsStr::new("apiv")) {
             continue
