@@ -30,7 +30,7 @@ pub evolution: EvolutionAst = {
         <ds:(<dependency>)*>
         <vb:(<bump>)?>
         <es:(<block>)*>
-        END => EvolutionAst::new(v.to_owned(), vb, ds, es),
+        END? => EvolutionAst::new(v.to_owned(), vb, ds, es),
 };
 
 dependency: Dependency = {
@@ -63,6 +63,7 @@ object_field: FieldOp = {
 }
 
 object_field_prop: FieldProperty = {
+    "name" <n:identifier> END? => FieldProperty::Name(n),
     "type" <n:identifier> END? => FieldProperty::Type(n),
     "description" <l: @L> <d:STR> <r: @R> END? => FieldProperty::Description(d.to_owned(), span(l, r)),
     "default" <v:value> END? => FieldProperty::Default(Expression::Val(v)),

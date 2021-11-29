@@ -33,9 +33,10 @@ pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
                 )
             }
             ParseError::UnrecognizedToken {
-                token: (start, _, end),
+                token: (start, token, end),
                 expected,
             } => {
+                dbg!(token);  //TODO @mark: TEMPORARY! REMOVE THIS!
                 let (line, col) = source_line_col(code, start);
                 format!("Unexpected code in {}:{}:{}\n{}{}", identifier, line + 1, col + 1,
                         source_loc_repr(code, line, col, max(1, end - start)), fmt_expected_tokens(&expected)

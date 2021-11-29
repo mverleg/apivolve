@@ -72,6 +72,7 @@ pub enum FieldOp {
 
 #[derive(Debug)]
 pub enum FieldProperty {
+    Name(Iden),
     Type(Iden),
     Description(String, Span),
     Default(Expression),

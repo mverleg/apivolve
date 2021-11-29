@@ -3,5 +3,5 @@ apivolve v0.1
 bump patch
 
 change object User {
-    rename name to full_name
+    change name name full_name
 }
