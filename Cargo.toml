@@ -5,10 +5,15 @@ description = "Apivolve is an API evolution tool, it helps keep your APIs backwa
 edition = "2021"
 publish = true
 license = "Apache-2.0"
+default-run = "apivolve"
 
 [[bin]]
 name = "apivolve"
 path = "src/main.rs"
+
+[[bin]]
+name = "apivolve-gen-json"
+path = "src/gen/json/main.rs"
 
 [lib]
 name = "apivolve"
