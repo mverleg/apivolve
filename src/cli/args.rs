@@ -22,8 +22,8 @@ pub enum Cmd {
     Check {},
     #[structopt(about = "Generate the API code for a specific target(s)")]
     Gen {
-        #[structopt(required = true)]
-        target: Vec<String>,
+        #[structopt(subcommand, about = "Targets to generate code for; leave empty to show all implementations")]
+        targets: Option<Targets>,
     },
     #[structopt(about = "Create a new evolutions file at the head of the current chain")]
     New {},
@@ -32,4 +32,10 @@ pub enum Cmd {
         // #[structopt(short, long, about = "Squash all the evolutions into one file per version")]
         // squash: bool,
     },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum Targets {
+    #[structopt(external_subcommand)]
+    Targets(Vec<String>),
 }

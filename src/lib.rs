@@ -20,15 +20,16 @@ mod ast;
 mod load;
 mod merge;
 
-pub fn apivolve_check(evolution_dir: PathBuf) -> ApivResult<()> {
+pub async fn apivolve_check(evolution_dir: PathBuf) -> ApivResult<()> {
     unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
-pub fn apivolve_generate(evolution_dir: PathBuf) -> ApivResult<()> {
+pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> ApivResult<()> {
+    assert!(!targets.is_empty(), "need at least one target");
     unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
-pub fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<()> {
+pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<()> {
     let evolutions = load_dir(evolution_dir)?;
     let mut prev_version = Version::new(0, 0, 0);
     if !evolutions.released().iter().next().map(|kv| kv.0 != &prev_version).unwrap_or(true) {
@@ -62,7 +63,7 @@ fn print_evolutions(evolutions: &Evolutions, depth: usize) {
     }
 }
 
-pub fn depth(prev: &Version, cur: &Version) -> u8 {
+fn depth(prev: &Version, cur: &Version) -> u8 {
     assert!(prev <= cur);
     if prev.major() < cur.major() {
         return 0;
@@ -73,10 +74,10 @@ pub fn depth(prev: &Version, cur: &Version) -> u8 {
     2
 }
 
-pub fn apivolve_next(evolution_dir: PathBuf) -> ApivResult<()> {
+pub async fn apivolve_next(evolution_dir: PathBuf) -> ApivResult<()> {
     unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
-pub fn apivolve_release(evolution_dir: PathBuf) -> ApivResult<()> {
+pub async fn apivolve_release(evolution_dir: PathBuf) -> ApivResult<()> {
     unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
