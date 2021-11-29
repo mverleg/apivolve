@@ -6,5 +6,5 @@ bump minor
 
 change object User {
     description "Anonymous member of the application"
-    delete name
+    delete `name`
 }
