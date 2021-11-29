@@ -35,6 +35,15 @@ impl Iden {
             span: span(left, right),
         }
     }
+
+    pub fn new_backticked(name: String, left: usize, right: usize) -> Self {
+        assert!(name.starts_with('`'));
+        assert!(name.ends_with('`'));
+        Iden {
+            name: name[1 .. name.len() - 1].to_owned(),
+            span: span(left, right),
+        }
+    }
 }
 
 #[derive(Debug)]
