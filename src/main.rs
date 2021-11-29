@@ -4,11 +4,14 @@ use ::std::path::PathBuf;
 use ::std::process::exit;
 
 use ::env_logger;
+use ::futures::executor::block_on;
+use ::regex::Regex;
 use ::structopt::StructOpt;
+
+use ::which::which_re;  //TODO @mark: https://github.com/harryfei/which-rs/issues/37
 
 use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next, apivolve_release};
 use ::apivolve::ApivResult;
-use ::futures::executor::block_on;
 
 use crate::cli::args::{Args, Targets};
 use crate::cli::args::Cmd;
@@ -42,7 +45,7 @@ pub async fn run(args: &Args) -> ApivResult<()> {
     }
 }
 
-
 pub async fn apivolve_list_generators(evolution_dir: PathBuf) -> ApivResult<()> {
-    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
+    //TODO @mark: error
+    which_re(Regex::new("^apivolve0-gen-.*").unwrap()).map_err(|_| format!(""))
 }

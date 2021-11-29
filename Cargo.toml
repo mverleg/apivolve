@@ -12,7 +12,7 @@ name = "apivolve"
 path = "src/main.rs"
 
 [[bin]]
-name = "apivolve-gen-json"
+name = "apivolve0-gen-json"
 path = "src/gen/json/main.rs"
 
 [lib]
@@ -35,6 +35,7 @@ lazy_static = "1.4.0"
 futures = "0.3.18"
 sha2 = "0.9.8"
 base64 = "0.13.0"
+which = { version = "4.2.2", featutres = ["regex"] }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "0.3", optional = true }
