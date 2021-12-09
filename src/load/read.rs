@@ -2,15 +2,15 @@ use ::std::borrow::Borrow;
 use ::std::collections::BTreeMap;
 use ::std::ffi::OsStr;
 use ::std::fmt;
-use ::std::fs::{DirEntry, ReadDir};
 use ::std::fs::read_to_string;
+use ::std::fs::{DirEntry, ReadDir};
 use ::std::hash::Hasher;
 use ::std::io::Write;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use ::sha2::digest::Update;
 use ::log::debug;
+use ::sha2::digest::Update;
 
 use crate::ast::evolution::{Block, Dependency};
 use crate::common::ApivResult;
@@ -25,22 +25,41 @@ pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<FullEvolution> {
     for entry in read_dir(&apivdir_path)? {
         let path = entry.path();
         if path.is_dir() {
-            let version_dir_name = path.file_name()
-                .ok_or_else(|| format!("could not get name for directory '{}'", path.to_string_lossy()))?
+            let version_dir_name = path
+                .file_name()
+                .ok_or_else(|| {
+                    format!(
+                        "could not get name for directory '{}'",
+                        path.to_string_lossy()
+                    )
+                })?
                 .to_str()
-                .ok_or_else(|| format!("name for directory '{}' does not seem to be unicode", path.to_string_lossy()))?;
+                .ok_or_else(|| {
+                    format!(
+                        "name for directory '{}' does not seem to be unicode",
+                        path.to_string_lossy()
+                    )
+                })?;
             let version_evolutions = load_all_in_dir(path.as_path())?;
             if version_evolutions.is_empty() {
                 debug!("skipping directory '{}' because it does not contain evolution files (non-recursive)", path.to_string_lossy());
                 continue;
             }
-            let version = Version::try_from(version_dir_name).map_err(
-                |err| format!("problem with evolution directory '{}': {}", err, path.to_string_lossy()))?;
+            let version = Version::try_from(version_dir_name).map_err(|err| {
+                format!(
+                    "problem with evolution directory '{}': {}",
+                    err,
+                    path.to_string_lossy()
+                )
+            })?;
             evolutions.insert(version, Evolutions::from(version_evolutions));
         }
     }
     let pending_evolutions = load_all_in_dir(&apivdir_path)?;
-    Ok(FullEvolution::new(evolutions, Evolutions::from_if_any(pending_evolutions)))
+    Ok(FullEvolution::new(
+        evolutions,
+        Evolutions::from_if_any(pending_evolutions),
+    ))
 }
 
 fn read_dir(path: &Path) -> ApivResult<Vec<DirEntry>> {
@@ -80,7 +99,7 @@ fn load_all_in_dir(path: &Path) -> ApivResult<Vec<Evolution>> {
     for released_entry in read_dir(path)? {
         let released_path = released_entry.path();
         if released_path.extension() != Some(OsStr::new("apiv")) {
-            continue
+            continue;
         }
         let evolution = load_file(released_path.to_path_buf())?;
         evolutions.push(evolution);

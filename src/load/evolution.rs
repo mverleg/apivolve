@@ -15,7 +15,7 @@ pub struct FullEvolution {
 }
 
 impl FullEvolution {
-    pub fn new(released: BTreeMap<Version, Evolutions>, pending: Option<Evolutions>,) -> Self {
+    pub fn new(released: BTreeMap<Version, Evolutions>, pending: Option<Evolutions>) -> Self {
         FullEvolution { released, pending }
     }
 
@@ -42,7 +42,7 @@ impl Evolutions {
 
     pub fn from_if_any(evolutions: Vec<Evolution>) -> Option<Self> {
         if evolutions.is_empty() {
-            return None
+            return None;
         }
         Some(Self::from(evolutions))
     }
@@ -54,7 +54,7 @@ impl Evolutions {
     }
 }
 
-impl <'a> IntoIterator for &'a Evolutions {
+impl<'a> IntoIterator for &'a Evolutions {
     type Item = &'a Evolution;
     type IntoIter = Iter<'a, Evolution>;
 

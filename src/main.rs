@@ -12,12 +12,14 @@ use ::regex::Regex;
 use ::structopt::StructOpt;
 use ::which::which_re;
 
-use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next, apivolve_release};
 use ::apivolve::ApivResult;
+use ::apivolve::{
+    apivolve_check, apivolve_generate, apivolve_list, apivolve_next, apivolve_release,
+};
 
-use crate::cli::args::{Args, Targets};
 use crate::cli::args::Cmd;
 use crate::cli::args::DEFAULT_EVOLUTION_DIR;
+use crate::cli::args::{Args, Targets};
 
 mod cli;
 
@@ -43,7 +45,9 @@ pub async fn run(args: &Args) -> ApivResult<()> {
     let mut dir = PathBuf::from(&args.evolution_dir);
     match &args.cmd {
         Cmd::Check { .. } => apivolve_check(dir).await,
-        Cmd::Gen { targets: Some(Targets::Targets(targets)) } => apivolve_generate(dir, targets).await,
+        Cmd::Gen {
+            targets: Some(Targets::Targets(targets)),
+        } => apivolve_generate(dir, targets).await,
         Cmd::Gen { targets: None } => apivolve_list_generators(dir).await,
         Cmd::List { .. } => apivolve_list(dir).await,
         Cmd::New { .. } => apivolve_next(dir).await,
@@ -51,16 +55,16 @@ pub async fn run(args: &Args) -> ApivResult<()> {
     }
 }
 
-pub fn which_re2(regex: impl Borrow<Regex>) -> Result<(), ()> {
+pub fn which_re2(regex: impl Borrow<Regex>) -> Result<(), String> {
     let r: &Regex = regex.borrow();
     Ok(())
 }
 
 pub async fn apivolve_list_generators(evolution_dir: PathBuf) -> ApivResult<()> {
-    which_re2(Regex::new("abc").unwrap());  //TODO @mark: TEMPORARY! REMOVE THIS!
-    which_re2(&Regex::new("abc").unwrap());  //TODO @mark: TEMPORARY! REMOVE THIS!
+    which_re2(Regex::new("abc").unwrap()); //TODO @mark: TEMPORARY! REMOVE THIS!
+    which_re2(&Regex::new("abc").unwrap()); //TODO @mark: TEMPORARY! REMOVE THIS!
     match which_re2(&*GEN_EXE_RE) {
         Ok(_) => Ok(()),
-        Err(err) => Err(format!("failed to scan $PATH for apivolve generators")),
+        Err(err) => Err("failed to scan $PATH for apivolve generators".to_owned()),
     }
 }

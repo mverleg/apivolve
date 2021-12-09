@@ -40,7 +40,7 @@ impl Iden {
         assert!(name.starts_with('`'));
         assert!(name.ends_with('`'));
         Iden {
-            name: name[1 .. name.len() - 1].to_owned(),
+            name: name[1..name.len() - 1].to_owned(),
             span: span(left, right),
         }
     }

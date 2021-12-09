@@ -22,7 +22,10 @@ pub enum Cmd {
     Check {},
     #[structopt(about = "Generate the API code for a specific target(s)")]
     Gen {
-        #[structopt(subcommand, about = "Targets to generate code for; leave empty to show all implementations")]
+        #[structopt(
+            subcommand,
+            about = "Targets to generate code for; leave empty to show all implementations"
+        )]
         targets: Option<Targets>,
     },
     #[structopt(about = "Create a new evolutions file at the head of the current chain")]
@@ -30,7 +33,7 @@ pub enum Cmd {
     #[structopt(about = "Combine current pending changes into a release")]
     Release {
         // #[structopt(short, long, about = "Squash all the evolutions into one file per version")]
-        // squash: bool,
+    // squash: bool,
     },
 }
 
