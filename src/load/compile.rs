@@ -1,5 +1,5 @@
+use ::std::cmp::max;
 use ::std::fmt::Write;
-use std::cmp::max;
 
 use ::lalrpop_util::ParseError;
 

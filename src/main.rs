@@ -2,13 +2,15 @@
 
 use ::std::path::PathBuf;
 use ::std::process::exit;
+use std::borrow::Borrow;
+use std::path;
 
 use ::env_logger;
 use ::futures::executor::block_on;
+use ::lazy_static::lazy_static;
 use ::regex::Regex;
 use ::structopt::StructOpt;
-
-use ::which::which_re;  //TODO @mark: https://github.com/harryfei/which-rs/issues/37
+use ::which::which_re;
 
 use ::apivolve::{apivolve_check, apivolve_generate, apivolve_list, apivolve_next, apivolve_release};
 use ::apivolve::ApivResult;
@@ -18,6 +20,10 @@ use crate::cli::args::Cmd;
 use crate::cli::args::DEFAULT_EVOLUTION_DIR;
 
 mod cli;
+
+lazy_static! {
+    static ref GEN_EXE_RE: Regex = Regex::new("^apivolve0-gen-.*").unwrap();
+}
 
 #[cfg(feature = "jemalloc")]
 #[global_allocator]
@@ -45,7 +51,16 @@ pub async fn run(args: &Args) -> ApivResult<()> {
     }
 }
 
+pub fn which_re2(regex: impl Borrow<Regex>) -> Result<(), ()> {
+    let r: &Regex = regex.borrow();
+    Ok(())
+}
+
 pub async fn apivolve_list_generators(evolution_dir: PathBuf) -> ApivResult<()> {
-    //TODO @mark: error
-    which_re(Regex::new("^apivolve0-gen-.*").unwrap()).map_err(|_| format!(""))
+    which_re2(Regex::new("abc").unwrap());  //TODO @mark: TEMPORARY! REMOVE THIS!
+    which_re2(&Regex::new("abc").unwrap());  //TODO @mark: TEMPORARY! REMOVE THIS!
+    match which_re2(&*GEN_EXE_RE) {
+        Ok(_) => Ok(()),
+        Err(err) => Err(format!("failed to scan $PATH for apivolve generators")),
+    }
 }
