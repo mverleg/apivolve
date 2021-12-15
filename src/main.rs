@@ -1,9 +1,9 @@
 #![allow(unused)] //TODO temporary
 
+use ::std::borrow::Borrow;
+use ::std::path;
 use ::std::path::PathBuf;
 use ::std::process::exit;
-use std::borrow::Borrow;
-use std::path;
 
 use ::env_logger;
 use ::futures::executor::block_on;
@@ -12,14 +12,14 @@ use ::regex::Regex;
 use ::structopt::StructOpt;
 use ::which::which_re;
 
-use ::apivolve::ApivResult;
 use ::apivolve::{
     apivolve_check, apivolve_generate, apivolve_list, apivolve_next, apivolve_release,
 };
+use ::apivolve::ApivResult;
 
+use crate::cli::args::{Args, Targets};
 use crate::cli::args::Cmd;
 use crate::cli::args::DEFAULT_EVOLUTION_DIR;
-use crate::cli::args::{Args, Targets};
 
 mod cli;
 
