@@ -26,19 +26,19 @@ jemalloc = ["jemallocator"]
 lalrpop = "0.19.6"
 
 [dependencies]
-log = "0.4"
-env_logger = "0.9"
-structopt = { version = "0.3" }
+log = "0.4.14"
+env_logger = "0.9.0"
+structopt = "0.3.25"
 lalrpop-util = { version = "0.19.6", features = ["lexer"] }
 regex = "1.5.4"
 lazy_static = "1.4.0"
-futures = "0.3.18"
-sha2 = "0.9.8"
+futures = "0.3.17"
+sha2 = "0.10.0"
 base64 = "0.13.0"
 which = { version = "4.2.2", features = ["regex"] }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemallocator = { version = "0.3", optional = true }
+jemallocator = { version = "0.3.2", optional = true }
 
 [profile.release]
 lto = "thin"
