@@ -1,5 +1,5 @@
 
-FROM mverleg/rust_nightly_musl_base:deps_2021-11-01_12
+FROM mverleg/rust_nightly_musl_base:nodeps_2022-01-01
 
 # Copy Cargo files to compile dependencies
 COPY ./Cargo.toml ./Cargo.lock ./deny.toml ./
