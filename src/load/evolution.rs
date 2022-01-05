@@ -73,7 +73,7 @@ pub struct Evolution {
 impl Evolution {
     pub fn seal(&self, hasher: &mut impl Update) {
         //TODO @mark:
-        hasher.update((self.depends.len() as u32).to_le_bytes());
-        hasher.update((self.blocks.len() as u32).to_le_bytes());
+        hasher.update((self.depends.len() as u32).to_le_bytes().as_slice());
+        hasher.update((self.blocks.len() as u32).to_le_bytes().as_slice());
     }
 }
