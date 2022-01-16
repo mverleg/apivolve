@@ -33,7 +33,7 @@ lalrpop-util = { version = "0.19.6", features = ["lexer"] }
 regex = "1.5.4"
 lazy_static = "1.4.0"
 futures = "0.3.19"
-sha2 = "0.10.0"
+sha2 = "0.10.1"
 base64 = "0.13.0"
 which = { version = "4.2.2", features = ["regex"] }
 
