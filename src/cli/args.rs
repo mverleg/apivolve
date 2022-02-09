@@ -17,7 +17,10 @@ pub struct Args {
 #[derive(Debug, StructOpt)]
 pub enum Cmd {
     #[structopt(about = "List all the evolutions in valid resolution order")]
-    List {},
+    List {
+        #[structopt(long, about = "Output as json v1")]
+        json1: bool,
+    },
     #[structopt(about = "Check that the API can be upgraded by running all evolutions")]
     Check {},
     #[structopt(about = "Generate the API code for a specific target(s)")]
@@ -33,7 +36,7 @@ pub enum Cmd {
     #[structopt(about = "Combine current pending changes into a release")]
     Release {
         // #[structopt(short, long, about = "Squash all the evolutions into one file per version")]
-    // squash: bool,
+        // squash: bool,
     },
 }
 

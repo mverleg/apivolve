@@ -49,7 +49,7 @@ pub async fn run(args: &Args) -> ApivResult<()> {
             targets: Some(Targets::Targets(targets)),
         } => apivolve_generate(dir, targets).await,
         Cmd::Gen { targets: None } => apivolve_list_generators(dir).await,
-        Cmd::List { .. } => apivolve_list(dir).await,
+        Cmd::List { json1 } => apivolve_list(dir, *json1).await,
         Cmd::New { .. } => apivolve_next(dir).await,
         Cmd::Release { .. } => apivolve_release(dir).await,
     }

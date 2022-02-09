@@ -10,7 +10,7 @@ use ::sha2::Digest;
 use ::sha2::Sha256;
 
 pub use crate::common::ApivResult;
-use crate::load::evolution::Evolutions;
+use crate::load::evolution::{Evolutions, FullEvolution};
 use crate::load::read::load_dir;
 use crate::load::version::Version;
 
@@ -29,7 +29,7 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
-pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<()> {
+pub async fn apivolve_list(evolution_dir: PathBuf, json: bool) -> ApivResult<()> {
     let evolutions = load_dir(evolution_dir)?;
     let mut prev_version = Version::new(0, 0, 0);
     if !evolutions
@@ -41,6 +41,15 @@ pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<()> {
     {
         println!("{}", prev_version);
     }
+    if json {
+        list_json(&evolutions, prev_version)
+    } else {
+        list_text(&evolutions, prev_version)
+    }
+    Ok(())
+}
+
+fn list_text(evolutions: &FullEvolution, mut prev_version: Version) {
     for (version, evolutions) in evolutions.released() {
         let mut hasher = Sha256::new();
         evolutions.seal(&mut hasher);
@@ -56,7 +65,10 @@ pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<()> {
     } else {
         println!("pending: none");
     }
-    Ok(())
+}
+
+fn list_json(evolutions: &FullEvolution, mut prev_version: Version) {
+    unimplemented!()
 }
 
 fn print_evolutions(evolutions: &Evolutions, depth: usize) {
