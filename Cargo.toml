@@ -10,25 +10,26 @@ default-run = "apivolve"
 [[bin]]
 name = "apivolve"
 path = "src/main.rs"
+required-features = ["bin"]
 
 [[bin]]
 name = "apivolve0-gen-json"
 path = "src/gen/json/main.rs"
+required-features = ["bin"]
 
 [lib]
 name = "apivolve"
 path = "src/lib.rs"
 
 [features]
-jemalloc = ["jemallocator"]
+bin = ["jemallocator", "env_logger", "structopt"]
 
 [build-dependencies]
 lalrpop = "0.19.7"
 
 [dependencies]
+# general
 log = "0.4.14"
-env_logger = "0.9.0"
-structopt = "0.3.26"
 lalrpop-util = { version = "0.19.7", features = ["lexer"] }
 regex = "1.5.4"
 lazy_static = "1.4.0"
@@ -36,6 +37,10 @@ futures = "0.3.19"
 sha2 = "0.10.1"
 base64 = "0.13.0"
 which = { version = "4.2.4", features = ["regex"] }
+
+# bin
+env_logger = { version = "0.9.0", optional = true }
+structopt = { version = "0.3.25", optional = true }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "0.3.2", optional = true }
