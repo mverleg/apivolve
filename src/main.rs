@@ -12,14 +12,15 @@ use ::regex::Regex;
 use ::structopt::StructOpt;
 use ::which::which_re;
 
-use ::apivolve::ApivResult;
 use ::apivolve::{
-    apivolve_check, apivolve_generate, apivolve_list, apivolve_next, apivolve_release,
+    apivolve_check, apivolve_generate, apivolve_next, apivolve_release,
 };
+use ::apivolve::ApivResult;
+use ::apivolve::list1;
 
+use crate::cli::args::{Args, Targets};
 use crate::cli::args::Cmd;
 use crate::cli::args::DEFAULT_EVOLUTION_DIR;
-use crate::cli::args::{Args, Targets};
 
 mod cli;
 
@@ -49,7 +50,14 @@ pub async fn run(args: &Args) -> ApivResult<()> {
             targets: Some(Targets::Targets(targets)),
         } => apivolve_generate(dir, targets).await,
         Cmd::Gen { targets: None } => apivolve_list_generators(dir).await,
-        Cmd::List { json1 } => apivolve_list(dir, *json1).await,
+        Cmd::List { json1 } => {
+            let listing = list1::apivolve_list(dir).await?;
+            if json1 {
+                println!("{}", listing.to_string())
+            } else {
+                format!("{}", listing)
+            }
+        },
         Cmd::New { .. } => apivolve_next(dir).await,
         Cmd::Release { .. } => apivolve_release(dir).await,
     }

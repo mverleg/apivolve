@@ -10,31 +10,31 @@ use ::sha2::Sha256;
 use crate::{ApivResult, Evolutions, FullEvolution, load_dir, Version};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Listing1 {
-    versions: Vec<VersionListing1>,
-    pending: Vec<EvolutionListing1>
+pub struct Listing {
+    versions: Vec<VersionListing>,
+    pending: Vec<EvolutionListing>
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct VersionListing1 {
+pub struct VersionListing {
     version: Version,
     hash: String,
     depth: u8,
-    evolutions: Vec<EvolutionListing1>,
+    evolutions: Vec<EvolutionListing>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct EvolutionListing1 {
+struct EvolutionListing {
     path: PathBuf,
 }
 
-impl fmt::Display for Listing1 {
+impl fmt::Display for Listing {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         todo!()
     }
 }
 
-pub async fn apivolve_list1(evolution_dir: PathBuf, json: bool) -> ApivResult<Vec<Listing1>> {
+pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<Listing> {
     let evolutions = load_dir(evolution_dir)?;
     let mut prev_version = Version::new(0, 0, 0);
     if !evolutions

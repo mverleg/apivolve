@@ -6,6 +6,7 @@ use ::lazy_static::lazy_static;
 use ::regex::Regex;
 use ::serde::{Serialize, Serializer};
 use ::serde::{Deserialize, Deserializer};
+use serde::de::DeserializeOwned;
 
 use crate::ApivResult;
 
@@ -52,12 +53,11 @@ impl Serialize for Version {
     }
 }
 
-//TODO @mark:
-// impl <'de> Deserialize for Version {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-//         todo!()
-//     }
-// }
+impl <'de> Deserialize<'de> for Version {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+        todo!()
+    }
+}
 
 impl Version {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
