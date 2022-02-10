@@ -1,23 +1,40 @@
-use std::path::PathBuf;
+use ::std::fmt;
+use ::std::fmt::Formatter;
+use ::std::path::PathBuf;
 
-use sha2::Sha256;
+use ::serde::Deserialize;
+use ::serde::Serialize;
+use ::sha2::Digest;
+use ::sha2::Sha256;
 
 use crate::{ApivResult, Evolutions, FullEvolution, load_dir, Version};
 
-#[derive(Debug, new, getter)]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Listing1 {
+    versions: Vec<VersionListing1>,
+    pending: Vec<EvolutionListing1>
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct VersionListing1 {
-    version: Option<Version>,
+    version: Version,
     hash: String,
-    evolutions: Vec<EvolutionListing1>,
     depth: u8,
+    evolutions: Vec<EvolutionListing1>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct EvolutionListing1 {
-
+    path: PathBuf,
 }
 
-pub async fn apivolve_list1(evolution_dir: PathBuf, json: bool) -> ApivResult<Vec<VersionListing1>> {
+impl fmt::Display for Listing1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        todo!()
+    }
+}
+
+pub async fn apivolve_list1(evolution_dir: PathBuf, json: bool) -> ApivResult<Vec<Listing1>> {
     let evolutions = load_dir(evolution_dir)?;
     let mut prev_version = Version::new(0, 0, 0);
     if !evolutions
@@ -29,12 +46,7 @@ pub async fn apivolve_list1(evolution_dir: PathBuf, json: bool) -> ApivResult<Ve
     {
         println!("{}", prev_version);
     }
-    if json {
-        list_json(&evolutions, prev_version)
-    } else {
-        list_text(&evolutions, prev_version)
-    }
-    Ok(())
+    Ok(vec![])
 }
 
 fn list_text(evolutions: &FullEvolution, mut prev_version: Version) {

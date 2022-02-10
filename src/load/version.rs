@@ -4,6 +4,8 @@ use ::std::path::Path;
 
 use ::lazy_static::lazy_static;
 use ::regex::Regex;
+use ::serde::{Serialize, Serializer};
+use ::serde::{Deserialize, Deserializer};
 
 use crate::ApivResult;
 
@@ -43,6 +45,19 @@ impl TryFrom<&str> for Version {
         })
     }
 }
+
+impl Serialize for Version {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+//TODO @mark:
+// impl <'de> Deserialize for Version {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+//         todo!()
+//     }
+// }
 
 impl Version {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
