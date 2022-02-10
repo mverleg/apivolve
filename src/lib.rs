@@ -68,7 +68,23 @@ fn list_text(evolutions: &FullEvolution, mut prev_version: Version) {
 }
 
 fn list_json(evolutions: &FullEvolution, mut prev_version: Version) {
-    unimplemented!()
+    println!("{{");
+    for (version, evolutions) in evolutions.released() {
+        let mut hasher = Sha256::new();
+        evolutions.seal(&mut hasher);
+        let digest = format!("sha256:{}", base64::encode(hasher.finalize()));
+        let depth = depth(&prev_version, version) as usize + 2;
+        prev_version = version.clone();
+        println!("{}\"{}\": {{\"hash\": \"{}\"}}", "  ".repeat(depth), &version, digest,);
+        print_json_evolutions(evolutions, depth)
+    }
+    print!("\"pending\": ");
+    if let Some(pending) = evolutions.pending() {
+        print_json_evolutions(pending, 0);
+    } else {
+        println!("[]");
+    }
+    println!("}}");
 }
 
 fn print_evolutions(evolutions: &Evolutions, depth: usize) {
@@ -79,6 +95,18 @@ fn print_evolutions(evolutions: &Evolutions, depth: usize) {
             evolution.path.to_string_lossy(),
         );
     }
+}
+
+fn print_json_evolutions(evolutions: &Evolutions, depth: usize) {
+    print!("[\n");
+    for evolution in evolutions {
+        println!(
+            "{}  \t\"{}\"",
+            "  ".repeat(depth + 2),
+            evolution.path.to_string_lossy(),
+        );
+    }
+    println!("{}  ]", "  ".repeat(depth));
 }
 
 fn depth(prev: &Version, cur: &Version) -> u8 {
