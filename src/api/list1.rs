@@ -46,7 +46,10 @@ pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<Listing> {
     {
         println!("{}", prev_version);
     }
-    Ok(vec![])
+    Ok(Listing {
+        versions: vec![],
+        pending: vec![],
+    })
 }
 
 fn list_text(evolutions: &FullEvolution, mut prev_version: Version) {

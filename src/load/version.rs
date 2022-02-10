@@ -1,12 +1,13 @@
 use ::std::cmp::Ordering;
 use ::std::fmt;
 use ::std::path::Path;
+use std::fmt::Formatter;
 
 use ::lazy_static::lazy_static;
 use ::regex::Regex;
 use ::serde::{Serialize, Serializer};
 use ::serde::{Deserialize, Deserializer};
-use serde::de::DeserializeOwned;
+use serde::de::{DeserializeOwned, Error, Visitor};
 
 use crate::ApivResult;
 
@@ -47,15 +48,29 @@ impl TryFrom<&str> for Version {
     }
 }
 
+struct VersionDeserializeVisitor();
+
+impl<'de> Visitor<'de> for VersionDeserializeVisitor {
+    type Value = Version;
+
+    fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
+        formatter.write_str("expecting a version string, i.e. '1.2.4' or '0.3.17'")
+    }
+
+    fn visit_string<E>(self, v: String) -> Result<Self::Value, E> where E: Error {
+        todo!()
+    }
+}
+
 impl Serialize for Version {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
         serializer.serialize_str(&self.to_string())
     }
 }
 
-impl <'de> Deserialize<'de> for Version {
+impl<'de> Deserialize<'de> for Version {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-        todo!()
+        deserializer.deserialize_str(VersionDeserializeVisitor)
     }
 }
 
