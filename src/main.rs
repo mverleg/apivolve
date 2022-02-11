@@ -12,10 +12,9 @@ use ::regex::Regex;
 use ::structopt::StructOpt;
 use ::which::which_re;
 
-use ::apivolve::{
-    apivolve_check, apivolve_generate, apivolve_next, apivolve_release,
-};
+use ::apivolve::{apivolve_check, apivolve_next, apivolve_release};
 use ::apivolve::ApivResult;
+use ::apivolve::gen1;
 use ::apivolve::list1;
 
 use crate::cli::args::{Args, Targets};
@@ -45,10 +44,10 @@ fn main() {
 pub async fn run(args: &Args) -> ApivResult<()> {
     let mut dir = PathBuf::from(&args.evolution_dir);
     match &args.cmd {
-        Cmd::Check { .. } => apivolve_check(dir).await,
-        Cmd::Gen { targets: Targets::List } => apivolve_list_generators().await,
-        Cmd::Gen { targets: Targets::External([]) } => apivolve_list_generators().await,
-        Cmd::Gen { targets: Targets::External(targets) } => apivolve_generate(dir, targets).await,
+        Cmd::Check { .. } => apivolve_check(dir).await?,
+        Cmd::Gen { targets: Targets::List } => println!("{}", gen1::apivolve_list_generators().await?),
+        Cmd::Gen { targets: Targets::External(targets) } if targets.is_empty() => println!("{}", gen1::apivolve_list_generators().await?),
+        Cmd::Gen { targets: Targets::External(targets) } => println!("{}", gen1::apivolve_generate(dir, &*targets).await?),
         Cmd::List { json1 } => {
             let listing = list1::apivolve_list(dir).await?;
             if *json1 {
@@ -56,9 +55,9 @@ pub async fn run(args: &Args) -> ApivResult<()> {
             } else {
                 print!("{}", listing)
             }
-            Ok(())
         },
-        Cmd::New { .. } => apivolve_next(dir).await,
-        Cmd::Release { .. } => apivolve_release(dir).await,
-    }
+        Cmd::New { .. } => apivolve_next(dir).await?,
+        Cmd::Release { .. } => apivolve_release(dir).await?,
+    };
+    Ok(())
 }

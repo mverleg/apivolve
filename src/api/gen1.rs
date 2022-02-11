@@ -1,7 +1,12 @@
 //! The generating executable should emit [GenerateConfig] as json on stdout.
 //! Then Apivolve CLI will send [GenerateChangesInput] in desired format on its stdin.
 
+use ::std::fmt;
+use ::std::fmt::Formatter;
+use ::std::path::Path;
 use ::std::path::PathBuf;
+use ::std::vec::IntoIter;
+use std::borrow::Cow;
 
 use ::lazy_static::lazy_static;
 use ::log::info;
@@ -34,7 +39,18 @@ pub struct GenerateChangesInput {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Generator {
+    name: String,
+    path: PathBuf,
+}
 
+impl Generator {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn path(&self) -> &Path {
+        self.path.as_path()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -43,16 +59,42 @@ pub struct Generators {
 }
 
 pub async fn apivolve_list_generators() -> ApivResult<Generators> {
-    find_all_generators()
+    Ok(find_all_generators())
 }
 
-pub async fn apivolve_generate(evolution_dir: PathBuf, targets: Vec<String>) -> ApivResult<()> {
+impl IntoIterator for Generators {
+    type Item = Generator;
+    type IntoIter = ::std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.generators.into_iter()
+    }
+}
+
+impl fmt::Display for Generators {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!()
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GenerateResult {
+    generators: Vec<Generator>,
+}
+
+impl fmt::Display for GenerateResult {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!()
+    }
+}
+
+pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> ApivResult<GenerateResult> {
     assert!(targets.is_empty());
     if targets.is_empty() {
         return Err("Need at least one target to generate".to_owned())
     }
-    for (target, generator) in find_target_generators(targets) {
-        info!("starting generator {} (at {})", target, generator.to_string_lossy());
+    for generator in find_target_generators(&targets).into_iter() {
+        info!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
     }
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
