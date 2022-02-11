@@ -3,7 +3,9 @@ use ::std::path::PathBuf;
 use ::std::ptr::hash;
 use ::std::slice::Iter;
 
+use ::sha2::Digest;
 use ::sha2::digest::Update;
+use sha2::Sha256;
 
 use crate::ast::evolution::{Block, Dependency};
 use crate::Version;
@@ -47,10 +49,20 @@ impl Evolutions {
         Some(Self::from(evolutions))
     }
 
-    pub fn seal(&self, hasher: &mut impl Update) {
+    pub fn evolution(&self) -> &[Evolution] {
+        &self.evolutions
+    }
+
+    pub fn seal_with(&self, hasher: &mut impl Update) {
         for evolution in &self.evolutions {
             evolution.seal(hasher);
         }
+    }
+
+    pub fn seal(&self) -> String {
+        let mut hasher = Sha256::new();
+        self.seal_with(&mut hasher);
+        format!("sha256:{}", base64::encode(hasher.finalize()))
     }
 }
 

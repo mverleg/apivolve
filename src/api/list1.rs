@@ -53,7 +53,7 @@ impl VersionListing {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct EvolutionListing {
+pub struct EvolutionListing {
     path: PathBuf,
 }
 
@@ -65,7 +65,7 @@ impl EvolutionListing {
 
 impl fmt::Display for Listing {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        for version in self.versions {
+        for version in self.versions() {
             println!("{}{}\"{}\"", "  ".repeat(version.depth() as usize), &version.version(), version.hash());
             print_evolutions(version.evolutions(), version.depth())
         }
@@ -83,37 +83,36 @@ impl fmt::Display for Listing {
 pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<Listing> {
     let evolutions = load_dir(evolution_dir)?;
     let mut prev_version = Version::new(0, 0, 0);
-    if !evolutions
-        .released()
-        .iter()
-        .next()
-        .map(|kv| kv.0 != &prev_version)
-        .unwrap_or(true)
-    {
-        println!("{}", prev_version);
+    let mut versions = vec![];
+    for (version, evolutions) in evolutions.released() {
+        let hash = evolutions.seal();
+        let depth = depth(&prev_version, version);
+        let mut evolution_listings = vec![];
+        for evolution in evolutions {
+            evolution_listings.push(EvolutionListing {
+                path: evolution.path.to_path_buf()
+            })
+        }
+        versions.push(VersionListing {
+            version: version.clone(),
+            hash,
+            depth,
+            evolutions: evolution_listings,
+        });
+        prev_version = version.clone();
+    }
+    let mut pending = vec![];
+    if let Some(evolutions) = evolutions.pending() {
+        for evolution in evolutions {
+            pending.push(EvolutionListing {
+                path: evolution.path.to_path_buf()
+            })
+        }
     }
     Ok(Listing {
-        versions: vec![],
-        pending: vec![],
+        versions,
+        pending,
     })
-}
-
-fn list_text(evolutions: &FullEvolution, mut prev_version: Version) {
-    for (version, evolutions) in evolutions.released() {
-        let mut hasher = Sha256::new();
-        evolutions.seal(&mut hasher);
-        let digest = format!("sha256:{}", base64::encode(hasher.finalize()));
-        let depth = depth(&prev_version, version) as usize;
-        prev_version = version.clone();
-        println!("{}{}\t\"{}\"", " ".repeat(2 * depth), &version, digest,);
-        print_evolutions(evolutions, depth)
-    }
-    if let Some(pending) = evolutions.pending() {
-        println!("pending");
-        print_evolutions(pending, 0);
-    } else {
-        println!("pending: none");
-    }
 }
 
 fn print_evolutions(evolutions: &[EvolutionListing], depth: u8) {
