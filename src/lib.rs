@@ -6,9 +6,11 @@ use ::std::hash::Hasher;
 use ::std::io::repeat;
 use ::std::path::PathBuf;
 
+use ::log::info;
 use ::sha2::Digest;
 use ::sha2::Sha256;
 
+use crate::api::gen1::find_target_generators;
 pub use crate::api::list1;
 pub use crate::common::ApivResult;
 use crate::load::evolution::{Evolutions, FullEvolution};
@@ -23,18 +25,23 @@ mod merge;
 mod api;
 
 pub async fn apivolve_check(evolution_dir: PathBuf) -> ApivResult<()> {
-    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
+    todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> ApivResult<()> {
-    assert!(!targets.is_empty(), "need at least one target");
-    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
+    if targets.is_empty() {
+        return Err("Need at least one target to generate".to_owned())
+    }
+    for (target, generator) in find_target_generators(targets) {
+        info!("starting generator {} (at {})", target, generator.to_string_lossy());
+    }
+    todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 pub async fn apivolve_next(evolution_dir: PathBuf) -> ApivResult<()> {
-    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
+    todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 pub async fn apivolve_release(evolution_dir: PathBuf) -> ApivResult<()> {
-    unimplemented!() //TODO @mark: TEMPORARY! REMOVE THIS!
+    todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }

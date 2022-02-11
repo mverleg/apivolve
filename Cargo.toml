@@ -18,7 +18,7 @@ path = "src/gen/json/main.rs"
 required-features = ["bin"]
 
 [[bin]]
-name = "apivolve0-gen-debug-dump"
+name = "apivolve-gen-debug-dump"
 path = "src/gen/debug_dump/main.rs"
 required-features = ["bin"]
 
