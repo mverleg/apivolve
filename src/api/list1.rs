@@ -66,7 +66,7 @@ impl EvolutionListing {
 impl fmt::Display for Listing {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for version in self.versions() {
-            println!("{}{}\"{}\"", "  ".repeat(version.depth() as usize), &version.version(), version.hash());
+            println!("{}{} \"{}\"", "  ".repeat(version.depth() as usize), &version.version(), version.hash());
             print_evolutions(version.evolutions(), version.depth())
         }
         match self.pending() {

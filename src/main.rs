@@ -53,7 +53,7 @@ pub async fn run(args: &Args) -> ApivResult<()> {
         Cmd::List { json1 } => {
             let listing = list1::apivolve_list(dir).await?;
             if *json1 {
-                println!("{}", listing.to_string())
+                println!("{}", serde_json::to_string_pretty(&listing).unwrap())
             } else {
                 print!("{}", listing)
             }
