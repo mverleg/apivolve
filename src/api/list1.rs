@@ -1,5 +1,6 @@
 use ::std::fmt;
 use ::std::fmt::Formatter;
+use ::std::path::Path;
 use ::std::path::PathBuf;
 
 use ::serde::Deserialize;
@@ -15,6 +16,16 @@ pub struct Listing {
     pending: Vec<EvolutionListing>
 }
 
+impl Listing {
+    pub fn versions(&self) -> &[VersionListing] {
+        &self.versions
+    }
+
+    pub fn pending(&self) -> &[EvolutionListing] {
+        &self.pending
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VersionListing {
     version: Version,
@@ -23,22 +34,47 @@ pub struct VersionListing {
     evolutions: Vec<EvolutionListing>,
 }
 
+impl VersionListing {
+    pub fn version(&self) -> &Version {
+        &self.version
+    }
+
+    pub fn hash(&self) -> &str {
+        &self.hash
+    }
+
+    pub fn depth(&self) -> u8 {
+        self.depth
+    }
+
+    pub fn evolutions(&self) -> &[EvolutionListing] {
+        &self.evolutions
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct EvolutionListing {
     path: PathBuf,
 }
 
+impl EvolutionListing {
+    pub fn path(&self) -> &Path {
+        self.path.as_path()
+    }
+}
+
 impl fmt::Display for Listing {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for version in self.versions {
-            println!("{}{}\"{}\"", " ".repeat(2 * version.depth()), &version.version(), version.hash());
+            println!("{}{}\"{}\"", "  ".repeat(version.depth() as usize), &version.version(), version.hash());
             print_evolutions(version.evolutions(), version.depth())
         }
-        if let Some(pend) = self.pending() {
-            println!("pending");
-            print_evolutions(pend, 0);
-        } else {
-            println!("pending: none");
+        match self.pending() {
+            &[] => println!("pending: none"),
+            pend => {
+                println!("pending");
+                print_evolutions(pend, 0);
+            }
         }
         Ok(())
     }
@@ -80,9 +116,9 @@ fn list_text(evolutions: &FullEvolution, mut prev_version: Version) {
     }
 }
 
-fn print_evolutions(evolutions: &Evolutions, depth: usize) {
+fn print_evolutions(evolutions: &[EvolutionListing], depth: u8) {
     for evolution in evolutions {
-        println!("{}- \"{}\"", " ".repeat(2 * depth), evolution.path().to_string_lossy());
+        println!("{}- \"{}\"", "  ".repeat(depth as usize), evolution.path().to_string_lossy());
     }
 }
 
