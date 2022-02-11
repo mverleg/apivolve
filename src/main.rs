@@ -46,10 +46,9 @@ pub async fn run(args: &Args) -> ApivResult<()> {
     let mut dir = PathBuf::from(&args.evolution_dir);
     match &args.cmd {
         Cmd::Check { .. } => apivolve_check(dir).await,
-        Cmd::Gen {
-            targets: Some(Targets::Targets(targets)),
-        } => apivolve_generate(dir, targets).await,
-        Cmd::Gen { targets: None } => apivolve_list_generators(dir).await,
+        Cmd::Gen { targets: Targets::List } => apivolve_list_generators().await,
+        Cmd::Gen { targets: Targets::External([]) } => apivolve_list_generators().await,
+        Cmd::Gen { targets: Targets::External(targets) } => apivolve_generate(dir, targets).await,
         Cmd::List { json1 } => {
             let listing = list1::apivolve_list(dir).await?;
             if *json1 {
@@ -61,19 +60,5 @@ pub async fn run(args: &Args) -> ApivResult<()> {
         },
         Cmd::New { .. } => apivolve_next(dir).await,
         Cmd::Release { .. } => apivolve_release(dir).await,
-    }
-}
-
-pub fn which_re2(regex: impl Borrow<Regex>) -> Result<(), String> {
-    let r: &Regex = regex.borrow();
-    Ok(())
-}
-
-pub async fn apivolve_list_generators(evolution_dir: PathBuf) -> ApivResult<()> {
-    which_re2(Regex::new("abc").unwrap()); //TODO @mark: TEMPORARY! REMOVE THIS!
-    which_re2(&Regex::new("abc").unwrap()); //TODO @mark: TEMPORARY! REMOVE THIS!
-    match which_re2(&*GEN_EXE_RE) {
-        Ok(_) => Ok(()),
-        Err(err) => Err("failed to scan $PATH for apivolve generators".to_owned()),
     }
 }

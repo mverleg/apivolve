@@ -29,7 +29,7 @@ pub enum Cmd {
             subcommand,
             about = "Targets to generate code for; leave empty to show all implementations"
         )]
-        targets: Option<Targets>,
+        targets: Targets,
     },
     #[structopt(about = "Create a new evolutions file at the head of the current chain")]
     New {},
@@ -42,6 +42,8 @@ pub enum Cmd {
 
 #[derive(Debug, StructOpt)]
 pub enum Targets {
+    #[structopt(about = "List all generators that are found in $PATH")]
+    List,
     #[structopt(external_subcommand)]
-    Targets(Vec<String>),
+    External(Vec<String>),
 }
