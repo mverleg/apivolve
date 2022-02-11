@@ -30,7 +30,17 @@ struct EvolutionListing {
 
 impl fmt::Display for Listing {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        todo!()
+        for version in self.versions {
+            println!("{}{}\"{}\"", " ".repeat(2 * version.depth()), &version.version(), version.hash());
+            print_evolutions(version.evolutions(), version.depth())
+        }
+        if let Some(pend) = self.pending() {
+            println!("pending");
+            print_evolutions(pend, 0);
+        } else {
+            println!("pending: none");
+        }
+        Ok(())
     }
 }
 
@@ -59,7 +69,7 @@ fn list_text(evolutions: &FullEvolution, mut prev_version: Version) {
         let digest = format!("sha256:{}", base64::encode(hasher.finalize()));
         let depth = depth(&prev_version, version) as usize;
         prev_version = version.clone();
-        println!("{}{}\t\"{}\"", "  ".repeat(depth), &version, digest,);
+        println!("{}{}\t\"{}\"", " ".repeat(2 * depth), &version, digest,);
         print_evolutions(evolutions, depth)
     }
     if let Some(pending) = evolutions.pending() {
@@ -72,11 +82,7 @@ fn list_text(evolutions: &FullEvolution, mut prev_version: Version) {
 
 fn print_evolutions(evolutions: &Evolutions, depth: usize) {
     for evolution in evolutions {
-        println!(
-            "{}  \t\"{}\"",
-            "  ".repeat(depth),
-            evolution.path.to_string_lossy(),
-        );
+        println!("{}- \"{}\"", " ".repeat(2 * depth), evolution.path().to_string_lossy());
     }
 }
 

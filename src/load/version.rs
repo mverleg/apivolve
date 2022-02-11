@@ -70,7 +70,7 @@ impl Serialize for Version {
 
 impl<'de> Deserialize<'de> for Version {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-        deserializer.deserialize_str(VersionDeserializeVisitor)
+        deserializer.deserialize_str(VersionDeserializeVisitor())
     }
 }
 

@@ -52,11 +52,12 @@ pub async fn run(args: &Args) -> ApivResult<()> {
         Cmd::Gen { targets: None } => apivolve_list_generators(dir).await,
         Cmd::List { json1 } => {
             let listing = list1::apivolve_list(dir).await?;
-            if json1 {
+            if *json1 {
                 println!("{}", listing.to_string())
             } else {
-                format!("{}", listing)
+                print!("{}", listing)
             }
+            Ok(())
         },
         Cmd::New { .. } => apivolve_next(dir).await,
         Cmd::Release { .. } => apivolve_release(dir).await,
