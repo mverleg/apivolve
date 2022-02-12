@@ -17,8 +17,10 @@ use ::which::which_re;
 
 use crate::{ApivResult, Version};
 
+const GEN_NAME_PREFIX: &str = "apivolve-gen-";
+
 lazy_static! {
-    static ref RE_GEN_NAME: Regex = Regex::new("^apivolve-gen-.*").unwrap();
+    static ref RE_GEN_NAME: Regex = Regex::new(&format!("^{}.*", GEN_NAME_PREFIX)).unwrap();
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -44,6 +46,13 @@ pub struct Generator {
 }
 
 impl Generator {
+    pub fn from_path(path: PathBuf) -> Self {
+        let full_name = path.file_name().expect("no filename").to_str().expect("filename is not unicode");
+        assert!(full_name.starts_with("apivolve-gen-"));
+        let name = full_name[GEN_NAME_PREFIX.len()..].to_owned();
+        Generator { name, path }
+    }
+
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -100,10 +109,13 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
 }
 
 fn find_all_generators() -> Generators {
-    which_re(&*RE_GEN_NAME).unwrap()
+    let generators = which_re(&*RE_GEN_NAME).unwrap()
+        .map(Generator::from_path)
         .inspect(|mtch| println!("{:?}", &mtch))
         .collect::<Vec<_>>();
-    todo!()
+    Generators {
+        generators,
+    }
 }
 
 fn find_target_generators(names: &[String]) -> Generators {
