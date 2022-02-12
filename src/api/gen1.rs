@@ -1,5 +1,5 @@
-//! The generating executable should emit [GenerateConfig] as json on stdout.
-//! Then Apivolve CLI will send [GenerateChangesInput] in desired format on its stdin.
+//! The generating executable should emit [GenerateConfig] as json on a single line of stdout.
+//! Then Apivolve CLI will send [GenerateChangesInput] in the desired format on its stdin.
 
 use ::std::borrow::Cow;
 use ::std::env;
@@ -7,6 +7,8 @@ use ::std::fmt;
 use ::std::fmt::Formatter;
 use ::std::path::Path;
 use ::std::path::PathBuf;
+use ::std::process::Command;
+use ::std::thread;
 use ::std::vec::IntoIter;
 
 use ::lazy_static::lazy_static;
@@ -20,7 +22,7 @@ use ::which::which_re;
 
 use crate::{ApivResult, Version};
 
-const GEN_NAME_PREFIX: &str = "apivolve-gen-";
+const GEN_NAME_PREFIX: &str = "apivolve-gen1-";
 
 lazy_static! {
     static ref GEN_NAME_RE: Regex = Regex::new(&format!("^{}.*", GEN_NAME_PREFIX)).unwrap();
@@ -51,7 +53,7 @@ pub struct Generator {
 impl Generator {
     pub fn from_path(path: PathBuf) -> Self {
         let full_name = path.file_name().expect("no filename").to_str().expect("filename is not unicode");
-        assert!(full_name.starts_with("apivolve-gen-"));
+        debug_assert!(full_name.starts_with(GEN_NAME_PREFIX));
         let name = full_name[GEN_NAME_PREFIX.len()..].to_owned();
         Generator { name, path }
     }
@@ -109,9 +111,19 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     if targets.is_empty() {
         return Err("Need at least one target to generate".to_owned())
     }
+    let mut threads = vec![];
     for generator in find_target_generators(&targets)?.into_iter() {
         info!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
+        threads.push((generator.name().to_owned(), thread::spawn(move || {
+            let cmd = Command::new(generator.path());
+        })));
     }
+    for (generator_name, thread) in threads {
+        debug!("waiting for generator {}", generator_name);
+        thread.join().unwrap();
+        debug!("generator {} complete", generator_name);
+    }
+    info!("all {} generators done", targets.len());
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 

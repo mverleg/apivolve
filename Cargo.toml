@@ -13,12 +13,12 @@ path = "src/main.rs"
 required-features = ["bin"]
 
 [[bin]]
-name = "apivolve-gen-json"
+name = "apivolve-gen1-json"
 path = "src/gen/json/main.rs"
 required-features = ["bin"]
 
 [[bin]]
-name = "apivolve-gen-debug-dump"
+name = "apivolve-gen1-debug-dump"
 path = "src/gen/debug_dump/main.rs"
 required-features = ["bin"]
 
