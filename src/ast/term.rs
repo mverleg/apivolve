@@ -1,6 +1,6 @@
 use crate::ast::{span, Span};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Value {
     Str(String, Span),
     Int(i64, Span),
@@ -46,7 +46,7 @@ impl Iden {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression {
     Val(Value),
     Ref(Iden),

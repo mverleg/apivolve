@@ -43,12 +43,12 @@ pub enum VersionBump {
     Major,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Block {
     Obj(ObjectOp),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Dependency {
     //TODO @mark: switch from path to just version, since names are predictable now?
     //TODO @mark: might be a problem when doing git merges though...

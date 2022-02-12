@@ -5,12 +5,12 @@ use ::std::slice::Iter;
 
 use ::sha2::Digest;
 use ::sha2::digest::Update;
-use sha2::Sha256;
+use ::sha2::Sha256;
 
 use crate::ast::evolution::{Block, Dependency};
 use crate::Version;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FullEvolution {
     released: BTreeMap<Version, Evolutions>,
     pending: Option<Evolutions>,
@@ -31,7 +31,7 @@ impl FullEvolution {
 }
 
 /// Sorted and non-empty
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Evolutions {
     evolutions: Vec<Evolution>,
 }
@@ -75,7 +75,7 @@ impl<'a> IntoIterator for &'a Evolutions {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Evolution {
     pub path: PathBuf,
     pub depends: Vec<Dependency>,

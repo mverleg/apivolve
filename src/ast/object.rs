@@ -1,14 +1,14 @@
 use crate::ast::term::{Expression, Iden, Value};
 use crate::ast::Span;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ObjectOp {
     Add(ObjectAdd),
     Change(ObjectChange),
     Delete(ObjectDelete),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ObjectAdd {
     pub name: Iden,
     pub desc: Option<(Span, String)>,
@@ -33,7 +33,7 @@ impl ObjectAdd {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ObjectChange {
     pub name: Iden,
     pub desc: Option<(Span, String)>,
@@ -58,19 +58,19 @@ impl ObjectChange {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ObjectDelete {
     pub name: Iden,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FieldOp {
     Add(Iden, Vec<FieldProperty>),
     Change(Iden, Vec<FieldProperty>),
     Delete(Iden),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FieldProperty {
     Name(Iden),
     Type(Iden),

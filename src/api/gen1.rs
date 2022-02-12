@@ -10,6 +10,7 @@ use ::std::path::PathBuf;
 use ::std::process::Command;
 use ::std::thread;
 use ::std::vec::IntoIter;
+use std::process::Stdio;
 
 use ::lazy_static::lazy_static;
 use ::log::debug;
@@ -20,7 +21,7 @@ use ::serde::Serialize;
 use ::which::which;
 use ::which::which_re;
 
-use crate::{ApivResult, Version};
+use crate::{ApivResult, FullEvolution, load_dir, Version};
 
 const GEN_NAME_PREFIX: &str = "apivolve-gen1-";
 
@@ -111,12 +112,12 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     if targets.is_empty() {
         return Err("Need at least one target to generate".to_owned())
     }
+    let evolutions = load_dir(evolution_dir)?;
     let mut threads = vec![];
     for generator in find_target_generators(&targets)?.into_iter() {
         info!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
-        threads.push((generator.name().to_owned(), thread::spawn(move || {
-            let cmd = Command::new(generator.path());
-        })));
+        let ev = evolutions.clone();
+        threads.push((generator.name().to_owned(), thread::spawn(move || run_generator(generator, ev))));
     }
     for (generator_name, thread) in threads {
         debug!("waiting for generator {}", generator_name);
@@ -125,6 +126,15 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     }
     info!("all {} generators done", targets.len());
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
+}
+
+fn run_generator(generator: Generator, evolutions: FullEvolution) {
+    let cmd = Command::new(generator.path())
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    todo!();  //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 fn find_all_generators() -> ApivResult<Generators> {
