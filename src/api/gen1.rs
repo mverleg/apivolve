@@ -14,6 +14,7 @@ use ::log::info;
 use ::regex::Regex;
 use ::serde::Deserialize;
 use ::serde::Serialize;
+use ::which::which;
 use ::which::which_re;
 
 use crate::{ApivResult, Version};
@@ -125,6 +126,16 @@ fn find_all_generators() -> ApivResult<Generators> {
     })
 }
 
-fn find_target_generators(names: &[String]) -> Generators {
-    todo!()
+fn find_target_generators(names: &[String]) -> ApivResult<Generators> {
+    Ok(Generators {
+        generators: names.iter()
+            .map(|name| {
+                let gen_name = format!("{}{}", GEN_NAME_PREFIX, &name);
+                match which(gen_name) {
+                    Ok(path) => Ok(Generator { name: name.to_owned(), path }),
+                    Err(_) => Err(format!("failed to find executable {}", gen_name)),
+                }
+            })
+            .collect::<ApivResult<Vec<_>>>()?
+    })
 }
