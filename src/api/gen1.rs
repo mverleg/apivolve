@@ -1,12 +1,13 @@
 //! The generating executable should emit [GenerateConfig] as json on stdout.
 //! Then Apivolve CLI will send [GenerateChangesInput] in desired format on its stdin.
 
+use ::std::borrow::Cow;
+use ::std::env;
 use ::std::fmt;
 use ::std::fmt::Formatter;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 use ::std::vec::IntoIter;
-use std::borrow::Cow;
 
 use ::lazy_static::lazy_static;
 use ::log::info;
@@ -20,7 +21,7 @@ use crate::{ApivResult, Version};
 const GEN_NAME_PREFIX: &str = "apivolve-gen-";
 
 lazy_static! {
-    static ref RE_GEN_NAME: Regex = Regex::new(&format!("^{}.*", GEN_NAME_PREFIX)).unwrap();
+    static ref GEN_NAME_RE: Regex = Regex::new(&format!("^{}.*", GEN_NAME_PREFIX)).unwrap();
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -68,7 +69,7 @@ pub struct Generators {
 }
 
 pub async fn apivolve_list_generators() -> ApivResult<Generators> {
-    Ok(find_all_generators())
+    find_all_generators()
 }
 
 impl IntoIterator for Generators {
@@ -82,7 +83,10 @@ impl IntoIterator for Generators {
 
 impl fmt::Display for Generators {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
+        for gen in &self.generators {
+            writeln!(f, "{} (@ {})", gen.name, gen.path.to_string_lossy());
+        }
+        Ok(())
     }
 }
 
@@ -108,14 +112,17 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
-fn find_all_generators() -> Generators {
-    let generators = which_re(&*RE_GEN_NAME).unwrap()
+fn find_all_generators() -> ApivResult<Generators> {
+    let generators = which_re(&*GEN_NAME_RE).unwrap()
         .map(Generator::from_path)
         .inspect(|mtch| println!("{:?}", &mtch))
         .collect::<Vec<_>>();
-    Generators {
-        generators,
+    if generators.is_empty() {
+        return Err("no generators found on $PATH".to_owned());
     }
+    Ok(Generators {
+        generators,
+    })
 }
 
 fn find_target_generators(names: &[String]) -> Generators {

@@ -43,7 +43,10 @@ pub enum Cmd {
 #[derive(Debug, StructOpt)]
 pub enum Targets {
     #[structopt(about = "List all generators that are found in $PATH")]
-    List,
+    List {
+        #[structopt(long, about = "Output as json v1")]
+        json1: bool,
+    },
     #[structopt(external_subcommand)]
     External(Vec<String>),
 }

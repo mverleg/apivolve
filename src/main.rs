@@ -45,7 +45,14 @@ pub async fn run(args: &Args) -> ApivResult<()> {
     let mut dir = PathBuf::from(&args.evolution_dir);
     match &args.cmd {
         Cmd::Check { .. } => apivolve_check(dir).await?,
-        Cmd::Gen { targets: Targets::List } => println!("{}", gen1::apivolve_list_generators().await?),
+        Cmd::Gen { targets: Targets::List { json1 } } => {
+            let list = gen1::apivolve_list_generators().await?;
+            if *json1 {
+                println!("{}", serde_json::to_string_pretty(&list).unwrap())
+            } else {
+                println!("{}", list)
+            }
+        },
         Cmd::Gen { targets: Targets::External(targets) } if targets.is_empty() => println!("{}", gen1::apivolve_list_generators().await?),
         Cmd::Gen { targets: Targets::External(targets) } => println!("{}", gen1::apivolve_generate(dir, &*targets).await?),
         Cmd::List { json1 } => {
