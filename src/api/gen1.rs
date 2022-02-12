@@ -64,6 +64,7 @@ impl Generator {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Generators {
     generators: Vec<Generator>,
 }
@@ -102,7 +103,7 @@ impl fmt::Display for GenerateResult {
 }
 
 pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> ApivResult<GenerateResult> {
-    assert!(targets.is_empty());
+    assert!(!targets.is_empty());
     if targets.is_empty() {
         return Err("Need at least one target to generate".to_owned())
     }
@@ -115,7 +116,6 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
 fn find_all_generators() -> ApivResult<Generators> {
     let generators = which_re(&*GEN_NAME_RE).unwrap()
         .map(Generator::from_path)
-        .inspect(|mtch| println!("{:?}", &mtch))
         .collect::<Vec<_>>();
     if generators.is_empty() {
         return Err("no generators found on $PATH".to_owned());

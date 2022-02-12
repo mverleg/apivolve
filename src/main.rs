@@ -41,7 +41,7 @@ fn main() {
     }
 }
 
-pub async fn run(args: &Args) -> ApivResult<()> {
+async fn run(args: &Args) -> ApivResult<()> {
     let mut dir = PathBuf::from(&args.evolution_dir);
     match &args.cmd {
         Cmd::Check { .. } => apivolve_check(dir).await?,
@@ -53,7 +53,9 @@ pub async fn run(args: &Args) -> ApivResult<()> {
                 println!("{}", list)
             }
         },
-        Cmd::Gen { targets: Targets::External(targets) } if targets.is_empty() => println!("{}", gen1::apivolve_list_generators().await?),
+        Cmd::Gen { targets: Targets::External(targets) } if targets.is_empty() => {
+            eprintln!("expected at least one generation target");  // prevented by structopt
+        }
         Cmd::Gen { targets: Targets::External(targets) } => println!("{}", gen1::apivolve_generate(dir, &*targets).await?),
         Cmd::List { json1 } => {
             let listing = list1::apivolve_list(dir).await?;
