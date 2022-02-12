@@ -10,7 +10,7 @@ use ::sha2::Sha256;
 use crate::ast::evolution::{Block, Dependency};
 use crate::Version;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct FullEvolution {
     released: BTreeMap<Version, Evolutions>,
     pending: Option<Evolutions>,
@@ -31,7 +31,7 @@ impl FullEvolution {
 }
 
 /// Sorted and non-empty
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Evolutions {
     evolutions: Vec<Evolution>,
 }
@@ -75,7 +75,7 @@ impl<'a> IntoIterator for &'a Evolutions {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Evolution {
     pub path: PathBuf,
     pub depends: Vec<Dependency>,

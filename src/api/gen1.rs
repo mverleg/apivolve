@@ -116,8 +116,7 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     let mut threads = vec![];
     for generator in find_target_generators(&targets)?.into_iter() {
         info!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
-        let ev = evolutions.clone();
-        threads.push((generator.name().to_owned(), thread::spawn(move || run_generator(generator, ev))));
+        run_generator(generator, &evolutions);
     }
     for (generator_name, thread) in threads {
         debug!("waiting for generator {}", generator_name);
@@ -128,7 +127,7 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
-fn run_generator(generator: Generator, evolutions: FullEvolution) {
+fn run_generator(generator: Generator, evolutions: &FullEvolution) {
     let cmd = Command::new(generator.path())
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
