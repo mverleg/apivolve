@@ -10,6 +10,7 @@ use ::std::path::PathBuf;
 use ::std::vec::IntoIter;
 
 use ::lazy_static::lazy_static;
+use ::log::debug;
 use ::log::info;
 use ::regex::Regex;
 use ::serde::Deserialize;
@@ -108,13 +109,14 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     if targets.is_empty() {
         return Err("Need at least one target to generate".to_owned())
     }
-    for generator in find_target_generators(&targets).into_iter() {
+    for generator in find_target_generators(&targets)?.into_iter() {
         info!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
     }
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 fn find_all_generators() -> ApivResult<Generators> {
+    debug!("PATH = {}", env::var("PATH").unwrap_or("".to_owned()));
     let generators = which_re(&*GEN_NAME_RE).unwrap()
         .map(Generator::from_path)
         .collect::<Vec<_>>();
@@ -126,14 +128,15 @@ fn find_all_generators() -> ApivResult<Generators> {
     })
 }
 
-fn find_target_generators(names: &[String]) -> ApivResult<Generators> {
+fn find_target_generators(targets: &[String]) -> ApivResult<Generators> {
+    debug!("PATH = {}", env::var("PATH").unwrap_or("".to_owned()));
     Ok(Generators {
-        generators: names.iter()
-            .map(|name| {
-                let gen_name = format!("{}{}", GEN_NAME_PREFIX, &name);
-                match which(gen_name) {
-                    Ok(path) => Ok(Generator { name: name.to_owned(), path }),
-                    Err(_) => Err(format!("failed to find executable {}", gen_name)),
+        generators: targets.iter()
+            .map(|target| {
+                let gen_name = format!("{}{}", GEN_NAME_PREFIX, &target);
+                match which(&gen_name) {
+                    Ok(path) => Ok(Generator { name: target.to_owned(), path }),
+                    Err(_) => Err(format!("failed to find executable '{}' for target '{}' in $PATH; use 'gen list' to find available targets", gen_name, target)),
                 }
             })
             .collect::<ApivResult<Vec<_>>>()?
