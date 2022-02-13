@@ -45,6 +45,12 @@ pub struct GenerateConfig {
     format: GenerateInputFormat,
 }
 
+impl GenerateConfig {
+    pub fn new(apivolve_version: Version, format: GenerateInputFormat) -> Self {
+        GenerateConfig { apivolve_version, format }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GenerateChangesInput {
 

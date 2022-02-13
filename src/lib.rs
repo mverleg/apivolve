@@ -15,7 +15,7 @@ pub use crate::api::list1;
 pub use crate::common::ApivResult;
 use crate::load::evolution::{Evolutions, FullEvolution};
 use crate::load::read::load_dir;
-use crate::load::version::Version;
+pub use crate::load::version::Version;
 
 mod common;
 
