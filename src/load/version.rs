@@ -54,11 +54,15 @@ impl<'de> Visitor<'de> for VersionDeserializeVisitor {
     type Value = Version;
 
     fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
-        formatter.write_str("expecting a version string, i.e. '1.2.4' or '0.3.17'")
+        formatter.write_str("a version string, i.e. '1.2.4' or '0.3.17'")
     }
 
-    fn visit_string<E>(self, v: String) -> Result<Self::Value, E> where E: Error {
-        todo!()
+    fn visit_str<E>(self, text: &str) -> Result<Self::Value, E> where E: Error {
+        Version::parse(text)
+    }
+
+    fn visit_string<E>(self, text: String) -> Result<Self::Value, E> where E: Error {
+        Version::parse(&text)
     }
 }
 
@@ -81,6 +85,21 @@ impl Version {
             minor,
             patch,
         }
+    }
+
+    pub fn parse(text: &str) -> ApivResult<Version> {
+        assert!(!text.contains("-"), "dash (-) in version not yet supported");
+        let parts = text.split(".")
+            .map(|part| part.parse::<u32>())
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|err| format!("failed to parse part of version as a positive number: {}, err {}", text, err))?;
+        if parts.len() < 3 {
+            return Err(format!("version should have at least three numbers separated by periods; this is too short: {}", text))
+        }
+        if parts.len() < 3 {
+            return Err(format!("version should have no more than three numbers separated by periods; this is too long: {}", text))
+        }
+        Ok(Version::new(parts[0], parts[1], parts[2]))
     }
 
     pub fn zero() -> Self {
@@ -146,5 +165,16 @@ impl Ord for Version {
 impl fmt::Display for Version {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn deser_version() {
+        let json: Vec<Version> = serde_json::from_str("[\"1.2.4\", \"0.3.17\"]").unwrap();
+        assert_eq!(json, vec![Version::new(1, 2, 4), Version::new(0, 3, 17)])
     }
 }

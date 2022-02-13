@@ -179,7 +179,7 @@ impl GeneratorHandler {
         reader.read_line(&mut buffer)
             .map_err(|err| format!("failed to read config (first line) from {} generator; err {}", &generator.name, err))?;
         let config: GenerateConfig = serde_json::from_str(&buffer)
-            .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer, err))?;
+            .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer.trim_end(), err))?;
         todo!()
 
 
