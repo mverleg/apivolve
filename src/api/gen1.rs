@@ -5,12 +5,14 @@ use ::std::borrow::Cow;
 use ::std::env;
 use ::std::fmt;
 use ::std::fmt::Formatter;
+use ::std::io::BufRead;
 use ::std::path::Path;
 use ::std::path::PathBuf;
+use ::std::process::{Child, Stdio};
 use ::std::process::Command;
 use ::std::thread;
 use ::std::vec::IntoIter;
-use std::process::Stdio;
+use std::io::{BufReader, Read, Write};
 
 use ::lazy_static::lazy_static;
 use ::log::debug;
@@ -113,27 +115,39 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
         return Err("Need at least one target to generate".to_owned())
     }
     let evolutions = load_dir(evolution_dir)?;
-    let mut threads = vec![];
     for generator in find_target_generators(&targets)?.into_iter() {
         info!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
-        run_generator(generator, &evolutions);
-    }
-    for (generator_name, thread) in threads {
-        debug!("waiting for generator {}", generator_name);
-        thread.join().unwrap();
-        debug!("generator {} complete", generator_name);
+        let handler = GeneratorHandler::run(generator, &evolutions);
+    // }
+    // for (generator_name, thread) in threads {
+    //     debug!("waiting for generator {}", generator_name);
+    //     //thread.join().unwrap();
+    //     //TODO @mark:
+    //     debug!("generator {} complete", generator_name);
     }
     info!("all {} generators done", targets.len());
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
-fn run_generator(generator: Generator, evolutions: &FullEvolution) {
-    let cmd = Command::new(generator.path())
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap();
-    todo!();  //TODO @mark: TEMPORARY! REMOVE THIS!
+#[derive(Debug)]
+struct GeneratorHandler<'a> {
+    evolutions: &'a FullEvolution,
+    proc: Child,
+}
+
+impl <'a> GeneratorHandler<'a> {
+    fn run(generator: Generator, evolutions: &'a FullEvolution) -> Self {
+        let proc = Command::new(generator.path())
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+        let line = BufReader::new(proc.stdout.unwrap()).lines().next();
+        GeneratorHandler {
+            evolutions,
+            proc,
+        }
+    }
 }
 
 fn find_all_generators() -> ApivResult<Generators> {
