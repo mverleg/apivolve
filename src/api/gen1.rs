@@ -120,17 +120,24 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     let evolutions = Arc::new(load_dir(evolution_dir)?);
     let mut threads = vec![];
     for generator in find_target_generators(&targets)?.into_iter() {
-        debug!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
+        debug!("building generator {} (at {})", generator.name(), generator.path().to_string_lossy());
         let name = generator.name.clone();
         let handler = GeneratorHandler::new(generator, evolutions.clone())?;
         let (sender, receiver) = mpsc::channel();
-        let join_handle = thread::spawn(move || sender.send(handler.run()));
+        let join_handle = thread::spawn(move || {
+            let target_name = handler.generator.name.clone();
+            debug!("starting generator {}", &target_name);
+            let res = handler.run();
+            debug!("sending {} result for {} generator", if res.is_ok() { "successful" } else { "FAILED" }, &target_name);
+            sender.send(res);
+            debug!("finished generator {}", &target_name);
+        });
         threads.push((name, join_handle, receiver));
     }
     debug!("waiting for {} generators", targets.len());
     for (name, thread, receiver) in threads {
         let res = receiver.recv_timeout(Duration::from_secs(60))
-            .map_err(|err| format!("failed to get result from generator thread"))?;
+            .map_err(|err| format!("failed to get result from generator thread"))??;
         thread.join();
     }
     info!("all {} generators done", targets.len());
@@ -159,9 +166,11 @@ impl GeneratorHandler {
     }
 
     fn run(self) -> ApivResult<()> {
-        let GeneratorHandler { generator, evolutions, proc } = self;
+        let GeneratorHandler { generator, evolutions, mut proc } = self;
+
         let mut buffer = String::with_capacity(512);
-        BufReader::new(self.proc.stdout.as_ref().unwrap()).read_line(&mut buffer)
+        let mut reader = BufReader::new(proc.stdout.as_mut().unwrap());
+        reader.read_line(&mut buffer)
             .map_err(|err| format!("failed to read config (first line) from {} generator; err {}", &generator.name, err))?;
         let config: GenerateConfig = serde_json::from_str(&buffer)
             .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer, err))?;
