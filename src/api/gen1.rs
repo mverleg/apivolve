@@ -5,14 +5,17 @@ use ::std::borrow::Cow;
 use ::std::env;
 use ::std::fmt;
 use ::std::fmt::Formatter;
+use ::std::io::{BufReader, Read, Write};
 use ::std::io::BufRead;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 use ::std::process::{Child, Stdio};
 use ::std::process::Command;
+use ::std::rc::Rc;
 use ::std::thread;
 use ::std::vec::IntoIter;
-use std::io::{BufReader, Read, Write};
+use std::sync::{Arc, mpsc};
+use std::time::Duration;
 
 use ::lazy_static::lazy_static;
 use ::log::debug;
@@ -114,39 +117,57 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     if targets.is_empty() {
         return Err("Need at least one target to generate".to_owned())
     }
-    let evolutions = load_dir(evolution_dir)?;
+    let evolutions = Arc::new(load_dir(evolution_dir)?);
+    let mut threads = vec![];
     for generator in find_target_generators(&targets)?.into_iter() {
-        info!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
-        let handler = GeneratorHandler::run(generator, &evolutions);
-    // }
-    // for (generator_name, thread) in threads {
-    //     debug!("waiting for generator {}", generator_name);
-    //     //thread.join().unwrap();
-    //     //TODO @mark:
-    //     debug!("generator {} complete", generator_name);
+        debug!("starting generator {} (at {})", generator.name(), generator.path().to_string_lossy());
+        let name = generator.name.clone();
+        let handler = GeneratorHandler::new(generator, evolutions.clone())?;
+        let (sender, receiver) = mpsc::channel();
+        let join_handle = thread::spawn(move || sender.send(handler.run()));
+        threads.push((name, join_handle, receiver));
+    }
+    debug!("waiting for {} generators", targets.len());
+    for (name, thread, receiver) in threads {
+        let res = receiver.recv_timeout(Duration::from_secs(60))
+            .map_err(|err| format!("failed to get result from generator thread"))?;
+        thread.join();
     }
     info!("all {} generators done", targets.len());
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 #[derive(Debug)]
-struct GeneratorHandler<'a> {
-    evolutions: &'a FullEvolution,
+struct GeneratorHandler {
+    generator: Generator,
+    evolutions: Arc<FullEvolution>,
     proc: Child,
 }
 
-impl <'a> GeneratorHandler<'a> {
-    fn run(generator: Generator, evolutions: &'a FullEvolution) -> Self {
+impl GeneratorHandler {
+    fn new(generator: Generator, evolutions: Arc<FullEvolution>) -> ApivResult<Self> {
         let proc = Command::new(generator.path())
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()
             .unwrap();
-        let line = BufReader::new(proc.stdout.unwrap()).lines().next();
-        GeneratorHandler {
+        Ok(GeneratorHandler {
+            generator,
             evolutions,
             proc,
-        }
+        })
+    }
+
+    fn run(self) -> ApivResult<()> {
+        let GeneratorHandler { generator, evolutions, proc } = self;
+        let mut buffer = String::with_capacity(512);
+        BufReader::new(self.proc.stdout.as_ref().unwrap()).read_line(&mut buffer)
+            .map_err(|err| format!("failed to read config (first line) from {} generator; err {}", &generator.name, err))?;
+        let config: GenerateConfig = serde_json::from_str(&buffer)
+            .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer, err))?;
+        todo!()
+
+
     }
 }
 
