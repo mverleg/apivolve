@@ -214,3 +214,45 @@ fn find_target_generators(targets: &[String]) -> ApivResult<Generators> {
             .collect::<ApivResult<Vec<_>>>()?
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use ::std::str::FromStr;
+
+    use crate::ast::evolution::Block;
+    use crate::ast::object::{FieldOp, ObjectAdd, ObjectOp};
+    use crate::ast::Span;
+    use crate::ast::term::Iden;
+    use crate::load::evolution::Evolution;
+
+    use super::*;
+
+    #[test]
+    fn serialization_compatibility_generate_config() {
+        let json = serde_json::to_string(&GenerateConfig {
+            apivolve_version: Version::new(1, 2, 4),
+            format: GenerateInputFormat::Json,
+        }).unwrap();
+        assert_eq!(json, "{\"apivolve_version\":\"1.2.4\",\"format\":\"Json\"}");
+    }
+
+    #[test]
+    fn serialization_compatibility_generators() {
+        let json = serde_json::to_string(&Generators {
+            generators: vec![
+                Generator { name: "test-cmd".to_string(), path: PathBuf::from_str("/path/apivolve-gen1-test-cmd").unwrap() },
+            ]
+        }).unwrap();
+        assert_eq!(json, "[{\"name\":\"test-cmd\",\"path\":\"/path/apivolve-gen1-test-cmd\"}]");
+    }
+
+    #[test]
+    fn serialization_compatibility_generate_result() {
+        let json = serde_json::to_string(&GenerateResult {
+            generators: vec![
+                Generator { name: "test-cmd".to_string(), path: PathBuf::from_str("/path/apivolve-gen1-test-cmd").unwrap() },
+            ]
+        }).unwrap();
+        assert_eq!(json, "{\"generators\":[{\"name\":\"test-cmd\",\"path\":\"/path/apivolve-gen1-test-cmd\"}]}");
+    }
+}
