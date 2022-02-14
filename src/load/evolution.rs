@@ -6,9 +6,9 @@ use ::std::slice::Iter;
 use ::sha2::Digest;
 use ::sha2::digest::Update;
 use ::sha2::Sha256;
+use ::semver::Version;
 
 use crate::ast::evolution::{Block, Dependency};
-use crate::Version;
 
 #[derive(Debug)]
 pub struct FullEvolution {

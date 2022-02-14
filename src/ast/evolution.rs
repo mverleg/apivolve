@@ -4,7 +4,6 @@ use ::regex::Regex;
 use crate::ast::evolution::VersionBump::Patch;
 use crate::ast::object::ObjectOp;
 use crate::ast::Span;
-use crate::Version;
 
 lazy_static! {
     static ref PATH_RE: Regex =

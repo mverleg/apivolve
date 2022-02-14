@@ -2,21 +2,22 @@ use ::std::borrow::Borrow;
 use ::std::collections::BTreeMap;
 use ::std::ffi::OsStr;
 use ::std::fmt;
-use ::std::fs::read_to_string;
 use ::std::fs::{DirEntry, ReadDir};
+use ::std::fs::read_to_string;
 use ::std::hash::Hasher;
 use ::std::io::Write;
 use ::std::path::Path;
 use ::std::path::PathBuf;
+use ::std::str::FromStr;
 
 use ::log::debug;
+use ::semver::Version;
 use ::sha2::digest::Update;
 
 use crate::ast::evolution::{Block, Dependency};
 use crate::common::ApivResult;
 use crate::load::compile::compile;
 use crate::load::evolution::{Evolution, Evolutions, FullEvolution};
-use crate::load::version::Version;
 
 pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<FullEvolution> {
     //TODO @mark: maybe scan with infinite recursion to warn about .apiv files being ignored
@@ -45,7 +46,7 @@ pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<FullEvolution> {
                 debug!("skipping directory '{}' because it does not contain evolution files (non-recursive)", path.to_string_lossy());
                 continue;
             }
-            let version = Version::try_from(version_dir_name).map_err(|err| {
+            let version = Version::from_str(version_dir_name).map_err(|err| {
                 format!(
                     "problem with evolution directory '{}': {}",
                     err,

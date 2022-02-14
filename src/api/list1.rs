@@ -3,12 +3,13 @@ use ::std::fmt::Formatter;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
+use ::semver::Version;
 use ::serde::Deserialize;
 use ::serde::Serialize;
 use ::sha2::Digest;
 use ::sha2::Sha256;
 
-use crate::{ApivResult, Evolutions, FullEvolution, load_dir, Version};
+use crate::{ApivResult, Evolutions, FullEvolution, load_dir};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Listing {
@@ -123,10 +124,10 @@ fn print_evolutions(evolutions: &[EvolutionListing], depth: u8) {
 
 fn depth(prev: &Version, cur: &Version) -> u8 {
     assert!(prev <= cur);
-    if prev.major() < cur.major() {
+    if prev.major < cur.major {
         return 0;
     }
-    if prev.minor() < cur.minor() {
+    if prev.minor < cur.minor {
         return 1;
     }
     2

@@ -21,12 +21,13 @@ use ::lazy_static::lazy_static;
 use ::log::debug;
 use ::log::info;
 use ::regex::Regex;
+use ::semver::Version;
 use ::serde::Deserialize;
 use ::serde::Serialize;
 use ::which::which;
 use ::which::which_re;
 
-use crate::{ApivResult, FullEvolution, load_dir, Version};
+use crate::{ApivResult, FullEvolution, load_dir};
 
 const GEN_NAME_PREFIX: &str = "apivolve-gen1-";
 
