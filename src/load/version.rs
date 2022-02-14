@@ -1,13 +1,13 @@
 use ::std::cmp::Ordering;
 use ::std::fmt;
 use ::std::path::Path;
-use std::fmt::Formatter;
+use ::std::error::Error;
+use ::std::fmt::{Debug, Display, Formatter};
 
 use ::lazy_static::lazy_static;
 use ::regex::Regex;
-use ::serde::{Serialize, Serializer};
-use ::serde::{Deserialize, Deserializer};
-use serde::de::{DeserializeOwned, Error, Visitor};
+use ::serde::Serialize;
+use ::serde::Deserialize;
 
 use crate::ApivResult;
 
@@ -16,7 +16,8 @@ lazy_static! {
         Regex::new(r"^v([0-9]+)\.([0-9]+)\.([0-9]+)(\.[a-zA-Z0-9_\-]+)?$").unwrap();
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde_as(as = "Vec<Vec<DisplayFromStr>>")]
 pub struct Version {
     major: u32,
     minor: u32,
@@ -48,36 +49,6 @@ impl TryFrom<&str> for Version {
     }
 }
 
-struct VersionDeserializeVisitor();
-
-impl<'de> Visitor<'de> for VersionDeserializeVisitor {
-    type Value = Version;
-
-    fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
-        formatter.write_str("a version string, i.e. '1.2.4' or '0.3.17'")
-    }
-
-    fn visit_str<E>(self, text: &str) -> Result<Self::Value, E> where E: Error {
-        Version::parse(text)
-    }
-
-    fn visit_string<E>(self, text: String) -> Result<Self::Value, E> where E: Error {
-        Version::parse(&text)
-    }
-}
-
-impl Serialize for Version {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-impl<'de> Deserialize<'de> for Version {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-        deserializer.deserialize_str(VersionDeserializeVisitor())
-    }
-}
-
 impl Version {
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
         Version {
@@ -87,8 +58,10 @@ impl Version {
         }
     }
 
-    pub fn parse(text: &str) -> ApivResult<Version> {
-        assert!(!text.contains("-"), "dash (-) in version not yet supported");
+    pub fn parse(mut text: &str) -> ApivResult<Version> {
+        if let Some(index) = text.find("-") {
+            text = &text[..index];
+        }
         let parts = text.split(".")
             .map(|part| part.parse::<u32>())
             .collect::<Result<Vec<_>, _>>()
