@@ -153,6 +153,14 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
+fn encode_evolution_changes(input_format: GenerateInputFormat, evolutions: &FullEvolution) -> ApivResult<String> {
+    //TODO @mark: create a cache?
+    Ok(match input_format {
+        GenerateInputFormat::Json => serde_json::to_string(evolutions)
+            .map_err(&format!("failed to convert evolutions to json; generator {}", input_format))?.into_bytes(),
+    })
+}
+
 #[derive(Debug)]
 struct GeneratorHandler {
     generator: Generator,
@@ -185,8 +193,10 @@ impl GeneratorHandler {
         let config: GenerateConfig = serde_json::from_str(&buffer)
             .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer.trim_end(), err))?;
 
-        proc.stdin.unwrap().write()
+        let data = encode_evolution_changes(config.format, &*evolutions)?;
+        let len = proc.stdin.expect("failed to send to generator").write(data.as_bytes())
             .expect(&format!("failed to write evolutions to generator {}", &generator.name));
+        assert_eq!(len, data.len());
 
         Ok(())
     }
