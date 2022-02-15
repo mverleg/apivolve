@@ -35,20 +35,42 @@ lazy_static! {
     static ref GEN_NAME_RE: Regex = Regex::new(&format!("^{}.*", GEN_NAME_PREFIX)).unwrap();
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum GenerateInputLayout {
+    Steps,
+}
+
+impl fmt::Display for GenerateInputLayout {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            GenerateInputLayout::Steps => write!(f, "steps"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum GenerateInputFormat {
     Json,
+}
+
+impl fmt::Display for GenerateInputFormat {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            GenerateInputFormat::Json => write!(f, "json"),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GenerateConfig {
     apivolve_version: Version,
-    format: GenerateInputFormat,
+    data_structure: GenerateInputLayout,
+    encoding: GenerateInputFormat,
 }
 
 impl GenerateConfig {
-    pub fn new(apivolve_version: Version, format: GenerateInputFormat) -> Self {
-        GenerateConfig { apivolve_version, format }
+    pub fn new(apivolve_version: Version, data_structure: GenerateInputLayout, encoding: GenerateInputFormat) -> Self {
+        GenerateConfig { apivolve_version, data_structure, encoding }
     }
 }
 
@@ -153,11 +175,13 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
-fn encode_evolution_changes(input_format: GenerateInputFormat, evolutions: &FullEvolution) -> ApivResult<String> {
+fn encode_evolution_changes(input_format: GenerateInputFormat, evolutions: &FullEvolution) -> ApivResult<Vec<u8>> {
     //TODO @mark: create a cache?
+    //TODO @mark: can serde directly write to buffer, instead of allocating the whole thing?
+    let changes = GenerateChangesInput::from(evolutions);
     Ok(match input_format {
-        GenerateInputFormat::Json => serde_json::to_string(evolutions)
-            .map_err(&format!("failed to convert evolutions to json; generator {}", input_format))?.into_bytes(),
+        GenerateInputFormat::Json => serde_json::to_string(&changes)
+            .map_err(|err| format!("failed to convert evolutions to json; generator {}, err {}", input_format, err))?.into_bytes(),
     })
 }
 
@@ -193,8 +217,8 @@ impl GeneratorHandler {
         let config: GenerateConfig = serde_json::from_str(&buffer)
             .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer.trim_end(), err))?;
 
-        let data = encode_evolution_changes(config.format, &*evolutions)?;
-        let len = proc.stdin.expect("failed to send to generator").write(data.as_bytes())
+        let data = encode_evolution_changes(config.encoding, &*evolutions)?;
+        let len = proc.stdin.expect("failed to send to generator").write(&data)
             .expect(&format!("failed to write evolutions to generator {}", &generator.name));
         assert_eq!(len, data.len());
 
@@ -246,7 +270,7 @@ mod tests {
     fn serialization_compatibility_generate_config() {
         let json = serde_json::to_string(&GenerateConfig {
             apivolve_version: Version::new(1, 2, 4),
-            format: GenerateInputFormat::Json,
+            encoding: GenerateInputFormat::Json,
         }).unwrap();
         assert_eq!(json, "{\"apivolve_version\":\"1.2.4\",\"format\":\"Json\"}");
     }
