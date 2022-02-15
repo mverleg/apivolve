@@ -26,7 +26,7 @@ pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<FullEvolution> {
     for entry in read_dir(&apivdir_path)? {
         let path = entry.path();
         if path.is_dir() {
-            let version_dir_name = path
+            let mut version_dir_name = path
                 .file_name()
                 .ok_or_else(|| {
                     format!(
@@ -41,6 +41,9 @@ pub fn load_dir(apivdir_path: PathBuf) -> ApivResult<FullEvolution> {
                         path.to_string_lossy()
                     )
                 })?;
+            if version_dir_name.starts_with('v') {
+                version_dir_name = &version_dir_name[1..];
+            }
             let version_evolutions = load_all_in_dir(path.as_path())?;
             if version_evolutions.is_empty() {
                 debug!("skipping directory '{}' because it does not contain evolution files (non-recursive)", path.to_string_lossy());

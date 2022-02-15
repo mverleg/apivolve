@@ -131,14 +131,16 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
         let name = generator.name.clone();
         let handler = GeneratorHandler::new(generator, evolutions.clone())?;
         let (sender, receiver) = mpsc::channel();
-        let join_handle = thread::spawn(move || {
-            let target_name = handler.generator.name.clone();
-            debug!("starting generator {}", &target_name);
-            let res = handler.run();
-            debug!("sending {} result for {} generator", if res.is_ok() { "successful" } else { "FAILED" }, &target_name);
-            sender.send(res);
-            debug!("finished generator {}", &target_name);
-        });
+        let join_handle = thread::Builder::new()
+            .name(format!("generate-{}", &handler.generator.name))
+            .spawn(move || {
+                let target_name = handler.generator.name.clone();
+                debug!("starting generator {}", &target_name);
+                let res = handler.run();
+                debug!("sending {} result for {} generator", if res.is_ok() { "successful" } else { "FAILED" }, &target_name);
+                sender.send(res);
+                debug!("finished generator {}", &target_name);
+            }).unwrap();
         threads.push((name, join_handle, receiver));
     }
     debug!("waiting for {} generators", targets.len());
@@ -176,14 +178,17 @@ impl GeneratorHandler {
         let GeneratorHandler { generator, evolutions, mut proc } = self;
 
         let mut buffer = String::with_capacity(512);
-        let mut reader = BufReader::new(proc.stdout.as_mut().unwrap());
+        let mut reader = BufReader::new(proc.stdout.as_mut().expect(&format!("failed to read from generator {}", &generator.name)));
         reader.read_line(&mut buffer)
             .map_err(|err| format!("failed to read config (first line) from {} generator; err {}", &generator.name, err))?;
+        debug!("received generator config: {}", buffer.trim_end());
         let config: GenerateConfig = serde_json::from_str(&buffer)
             .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer.trim_end(), err))?;
-        todo!()
 
+        proc.stdin.unwrap().write()
+            .expect(&format!("failed to write evolutions to generator {}", &generator.name));
 
+        Ok(())
     }
 }
 
