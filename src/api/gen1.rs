@@ -79,6 +79,12 @@ pub struct GenerateChangesInput {
 
 }
 
+impl From<&FullEvolution> for GenerateChangesInput {
+    fn from(evolutions: &FullEvolution) -> Self {
+        todo!()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Generator {
     name: String,
@@ -270,6 +276,7 @@ mod tests {
     fn serialization_compatibility_generate_config() {
         let json = serde_json::to_string(&GenerateConfig {
             apivolve_version: Version::new(1, 2, 4),
+            data_structure: GenerateInputLayout::Steps,
             encoding: GenerateInputFormat::Json,
         }).unwrap();
         assert_eq!(json, "{\"apivolve_version\":\"1.2.4\",\"format\":\"Json\"}");
