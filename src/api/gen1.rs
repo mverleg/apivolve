@@ -37,12 +37,16 @@ lazy_static! {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum GenerateInputLayout {
+    /// The complete data layout per version.
+    Layout,
+    /// The steps to be taken to parse and generate input per version.
     Steps,
 }
 
 impl fmt::Display for GenerateInputLayout {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
+            GenerateInputLayout::Layout => write!(f, "layout"),
             GenerateInputLayout::Steps => write!(f, "steps"),
         }
     }
@@ -279,7 +283,7 @@ mod tests {
             data_structure: GenerateInputLayout::Steps,
             encoding: GenerateInputFormat::Json,
         }).unwrap();
-        assert_eq!(json, "{\"apivolve_version\":\"1.2.4\",\"format\":\"Json\"}");
+        assert_eq!(json, "{\"apivolve_version\":\"1.2.4\",\"data_structure\":\"Steps\",\"encoding\":\"Json\"}");
     }
 
     #[test]
