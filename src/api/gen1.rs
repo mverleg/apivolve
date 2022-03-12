@@ -12,11 +12,12 @@ use ::std::path::PathBuf;
 use ::std::process::{Child, Stdio};
 use ::std::process::Command;
 use ::std::rc::Rc;
+use ::std::sync::{Arc, mpsc};
 use ::std::thread;
+use ::std::time::Duration;
 use ::std::vec::IntoIter;
-use std::sync::{Arc, mpsc};
-use std::time::Duration;
 
+use ::itertools::Itertools;
 use ::lazy_static::lazy_static;
 use ::log::debug;
 use ::log::info;
@@ -240,6 +241,8 @@ fn find_all_generators() -> ApivResult<Generators> {
     debug!("PATH = {}", env::var("PATH").unwrap_or("".to_owned()));
     let generators = which_re(&*GEN_NAME_RE).unwrap()
         .map(Generator::from_path)
+        .sorted_by_key(|gen| gen.name.clone())
+        .dedup_by(|gen1, gen2| &gen1.name == &gen2.name)
         .collect::<Vec<_>>();
     if generators.is_empty() {
         return Err("no generators found on $PATH".to_owned());

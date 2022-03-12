@@ -27,6 +27,7 @@ dependencies = [
  "base64",
  "env_logger",
  "futures",
+ "itertools",
  "jemallocator",
  "lalrpop",
  "lalrpop-util",
