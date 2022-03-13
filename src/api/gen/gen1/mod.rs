@@ -80,13 +80,35 @@ impl GenerateConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GenerateChangesInput {
-
+pub struct Step {
+    //TODO @mark:
 }
 
-impl From<&FullEvolution> for GenerateChangesInput {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GenerateStepsInput {
+    released: Vec<(Version, Vec<Step>)>,
+    pending: Vec<Step>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Object {
+    //TODO @mark:
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GenerateStateInput {
+    released: Vec<(Version, Vec<Step>)>,
+    pending: Vec<Step>,
+}
+
+impl From<&FullEvolution> for GenerateStepsInput {
     fn from(evolutions: &FullEvolution) -> Self {
-        todo!()
+        let FullEvolution { released, pending } = evolutions;
+        todo!();  //TODO @mark: TEMPORARY! REMOVE THIS!
+        GenerateStepsInput {
+            released: vec![],
+            pending: vec![]
+        }
     }
 }
 
@@ -189,7 +211,7 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
 fn encode_evolution_changes(input_format: GenerateInputFormat, evolutions: &FullEvolution) -> ApivResult<Vec<u8>> {
     //TODO @mark: create a cache?
     //TODO @mark: can serde directly write to buffer, instead of allocating the whole thing?
-    let changes = GenerateChangesInput::from(evolutions);
+    let changes = GenerateStepsInput::from(evolutions);
     Ok(match input_format {
         GenerateInputFormat::Json => serde_json::to_string(&changes)
             .map_err(|err| format!("failed to convert evolutions to json; generator {}, err {}", input_format, err))?.into_bytes(),
