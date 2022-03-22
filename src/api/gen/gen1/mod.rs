@@ -17,6 +17,8 @@ use ::std::thread;
 use ::std::time::Duration;
 use ::std::vec::IntoIter;
 
+use ::apivolve_generator_api::gen1::GenerateConfig;
+use ::apivolve_generator_api::gen1::GenerateInputFormat;
 use ::itertools::Itertools;
 use ::lazy_static::lazy_static;
 use ::log::debug;
@@ -30,53 +32,9 @@ use ::which::which_re;
 
 use crate::{ApivResult, FullEvolution, load_dir};
 
-const GEN_NAME_PREFIX: &str = "apivolve-gen1-";
-
 lazy_static! {
-    static ref GEN_NAME_RE: Regex = Regex::new(&format!("^{}.*", GEN_NAME_PREFIX)).unwrap();
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum GenerateInputLayout {
-    /// The complete data layout per version.
-    Layout,
-    /// The steps to be taken to parse and generate input per version.
-    Steps,
-}
-
-impl fmt::Display for GenerateInputLayout {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            GenerateInputLayout::Layout => write!(f, "layout"),
-            GenerateInputLayout::Steps => write!(f, "steps"),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum GenerateInputFormat {
-    Json,
-}
-
-impl fmt::Display for GenerateInputFormat {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            GenerateInputFormat::Json => write!(f, "json"),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GenerateConfig {
-    apivolve_version: Version,
-    data_structure: GenerateInputLayout,
-    encoding: GenerateInputFormat,
-}
-
-impl GenerateConfig {
-    pub fn new(apivolve_version: Version, data_structure: GenerateInputLayout, encoding: GenerateInputFormat) -> Self {
-        GenerateConfig { apivolve_version, data_structure, encoding }
-    }
+    static ref GEN_NAME_PREFIX: &'static str = "apivolve-gen1-";
+    static ref GEN_NAME_RE: Regex = Regex::new(&format!("^{}.*", &*GEN_NAME_PREFIX)).unwrap();
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -121,7 +79,7 @@ pub struct Generator {
 impl Generator {
     pub fn from_path(path: PathBuf) -> Self {
         let full_name = path.file_name().expect("no filename").to_str().expect("filename is not unicode");
-        debug_assert!(full_name.starts_with(GEN_NAME_PREFIX));
+        debug_assert!(full_name.starts_with(&*GEN_NAME_PREFIX));
         let name = full_name[GEN_NAME_PREFIX.len()..].to_owned();
         Generator { name, path }
     }
@@ -250,7 +208,7 @@ impl GeneratorHandler {
         let config: GenerateConfig = serde_json::from_str(&buffer)
             .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer.trim_end(), err))?;
 
-        let data = encode_evolution_changes(config.encoding, &*evolutions)?;
+        let data = encode_evolution_changes(config.encoding(), &*evolutions)?;
         let len = proc.stdin.expect("failed to send to generator").write(&data)
             .expect(&format!("failed to write evolutions to generator {}", &generator.name));
         assert_eq!(len, data.len());
@@ -279,7 +237,7 @@ fn find_target_generators(targets: &[String]) -> ApivResult<Generators> {
     Ok(Generators {
         generators: targets.iter()
             .map(|target| {
-                let gen_name = format!("{}{}", GEN_NAME_PREFIX, &target);
+                let gen_name = format!("{}{}", &*GEN_NAME_PREFIX, &target);
                 match which(&gen_name) {
                     Ok(path) => Ok(Generator { name: target.to_owned(), path }),
                     Err(_) => Err(format!("failed to find executable '{}' for target '{}' in $PATH; use 'gen list' to find available targets", gen_name, target)),
@@ -292,6 +250,8 @@ fn find_target_generators(targets: &[String]) -> ApivResult<Generators> {
 #[cfg(test)]
 mod tests {
     use ::std::str::FromStr;
+
+    use ::apivolve_generator_api::gen1::{GenerateConfig, GenerateInputLayout};
 
     use crate::ast::evolution::Block;
     use crate::ast::object::{FieldOp, ObjectAdd, ObjectOp};
