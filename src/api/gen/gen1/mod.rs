@@ -61,8 +61,8 @@ pub struct GenerateStateInput {
 
 impl From<&FullEvolution> for GenerateStepsInput {
     fn from(evolutions: &FullEvolution) -> Self {
-        let FullEvolution { released, pending } = evolutions;
-        todo!();  //TODO @mark: TEMPORARY! REMOVE THIS!
+        // let FullEvolution { released, pending } = evolutions;
+        //TODO @mark:
         GenerateStepsInput {
             released: vec![],
             pending: vec![]
@@ -126,13 +126,21 @@ pub struct GenerateResult {
     generators: Vec<Generator>,
 }
 
+impl GenerateResult {
+    pub fn new(generators : Vec<Generator>) -> Self {
+        GenerateResult {
+            generators
+        }
+    }
+}
+
 impl fmt::Display for GenerateResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         todo!()
     }
 }
 
-pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> ApivResult<GenerateResult> {
+pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> ApivResult<()> {
     assert!(!targets.is_empty());
     if targets.is_empty() {
         return Err("Need at least one target to generate".to_owned())
@@ -163,7 +171,7 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
         thread.join();
     }
     info!("all {} generators done", targets.len());
-    todo!() //TODO @mark: TEMPORARY! REMOVE THIS!
+    Ok(())
 }
 
 fn encode_evolution_changes(input_format: GenerateInputFormat, evolutions: &FullEvolution) -> ApivResult<Vec<u8>> {
@@ -263,11 +271,11 @@ mod tests {
 
     #[test]
     fn serialization_compatibility_generate_config() {
-        let json = serde_json::to_string(&GenerateConfig {
-            apivolve_version: Version::new(1, 2, 4),
-            data_structure: GenerateInputLayout::Steps,
-            encoding: GenerateInputFormat::Json,
-        }).unwrap();
+        let json = serde_json::to_string(&GenerateConfig::new(
+            Version::new(1, 2, 4),
+            GenerateInputLayout::Steps,
+            GenerateInputFormat::Json,
+        )).unwrap();
         assert_eq!(json, "{\"apivolve_version\":\"1.2.4\",\"data_structure\":\"Steps\",\"encoding\":\"Json\"}");
     }
 

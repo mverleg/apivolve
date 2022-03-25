@@ -20,7 +20,7 @@ mod common;
 mod ast;
 mod load;
 mod merge;
-mod api;
+pub mod api;
 
 pub async fn apivolve_check(evolution_dir: PathBuf) -> ApivResult<()> {
     todo!() //TODO @mark: TEMPORARY! REMOVE THIS!

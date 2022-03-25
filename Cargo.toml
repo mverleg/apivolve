@@ -6,18 +6,19 @@ edition = "2021"
 publish = true
 license = "Apache-2.0"
 default-run = "apivolve"
+repository = "https://github.com/mverleg/apivolve"
 
 [[bin]]
 name = "apivolve"
 path = "src/main.rs"
-required-features = ["bin"]
+required-features = ["binary"]
 
 [lib]
 name = "apivolve"
 path = "src/lib.rs"
 
 [features]
-bin = [
+binary = [
   "jemallocator",
   "env_logger",
   "structopt",

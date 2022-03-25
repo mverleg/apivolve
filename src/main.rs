@@ -5,6 +5,7 @@ use ::std::path;
 use ::std::path::PathBuf;
 use ::std::process::exit;
 
+use ::apivolve_generator_api::gen1;
 use ::env_logger;
 use ::futures::executor::block_on;
 use ::lazy_static::lazy_static;
@@ -12,9 +13,12 @@ use ::regex::Regex;
 use ::structopt::StructOpt;
 use ::which::which_re;
 
-use ::apivolve::{apivolve_check, apivolve_next, apivolve_release};
+use ::apivolve::api::gen::gen1::apivolve_generate;
+use ::apivolve::api::gen::gen1::apivolve_list_generators;
+use ::apivolve::apivolve_check;
+use ::apivolve::apivolve_next;
+use ::apivolve::apivolve_release;
 use ::apivolve::ApivResult;
-use ::apivolve::gen1;
 use ::apivolve::list1;
 
 use crate::cli::args::{Args, Targets};
@@ -46,7 +50,7 @@ async fn run(args: &Args) -> ApivResult<()> {
     match &args.cmd {
         Cmd::Check { .. } => apivolve_check(dir).await?,
         Cmd::Gen { targets: Targets::List { json1 } } => {
-            let list = gen1::apivolve_list_generators().await?;
+            let list = apivolve_list_generators().await?;
             if *json1 {
                 println!("{}", serde_json::to_string_pretty(&list).unwrap())
             } else {
@@ -56,7 +60,7 @@ async fn run(args: &Args) -> ApivResult<()> {
         Cmd::Gen { targets: Targets::External(targets) } if targets.is_empty() => {
             eprintln!("expected at least one generation target");  // prevented by structopt
         }
-        Cmd::Gen { targets: Targets::External(targets) } => println!("{}", gen1::apivolve_generate(dir, &*targets).await?),
+        Cmd::Gen { targets: Targets::External(targets) } => apivolve_generate(dir, &*targets).await?,
         Cmd::List { json1 } => {
             let listing = list1::apivolve_list(dir).await?;
             if *json1 {
