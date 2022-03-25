@@ -17,57 +17,30 @@ use ::std::thread;
 use ::std::time::Duration;
 use ::std::vec::IntoIter;
 
+use ::apivolve_generator_api::gen1::{GenerateInputLayout, GenerateSteps};
 use ::apivolve_generator_api::gen1::GenerateConfig;
 use ::apivolve_generator_api::gen1::GenerateInputFormat;
 use ::itertools::Itertools;
 use ::lazy_static::lazy_static;
 use ::log::debug;
 use ::log::info;
+use ::log::trace;
 use ::regex::Regex;
 use ::semver::Version;
+use ::serde::__private::from_utf8_lossy;
 use ::serde::Deserialize;
 use ::serde::Serialize;
 use ::which::which;
 use ::which::which_re;
 
 use crate::{ApivResult, FullEvolution, load_dir};
+use crate::api::gen::gen1::steps::evolutions_to_steps;
+
+mod steps;
 
 lazy_static! {
     static ref GEN_NAME_PREFIX: &'static str = "apivolve-gen1-";
     static ref GEN_NAME_RE: Regex = Regex::new(&format!("^{}.*", &*GEN_NAME_PREFIX)).unwrap();
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Step {
-    //TODO @mark:
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GenerateStepsInput {
-    released: Vec<(Version, Vec<Step>)>,
-    pending: Vec<Step>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Object {
-    //TODO @mark:
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GenerateStateInput {
-    released: Vec<(Version, Vec<Step>)>,
-    pending: Vec<Step>,
-}
-
-impl From<&FullEvolution> for GenerateStepsInput {
-    fn from(evolutions: &FullEvolution) -> Self {
-        // let FullEvolution { released, pending } = evolutions;
-        //TODO @mark:
-        GenerateStepsInput {
-            released: vec![],
-            pending: vec![]
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -174,12 +147,11 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
     Ok(())
 }
 
-fn encode_evolution_changes(input_format: GenerateInputFormat, evolutions: &FullEvolution) -> ApivResult<Vec<u8>> {
+fn encode_evolution_changes(input_format: GenerateInputFormat, steps: &GenerateSteps) -> ApivResult<Vec<u8>> {
     //TODO @mark: create a cache?
     //TODO @mark: can serde directly write to buffer, instead of allocating the whole thing?
-    let changes = GenerateStepsInput::from(evolutions);
     Ok(match input_format {
-        GenerateInputFormat::Json => serde_json::to_string(&changes)
+        GenerateInputFormat::Json => serde_json::to_string(&steps)
             .map_err(|err| format!("failed to convert evolutions to json; generator {}, err {}", input_format, err))?.into_bytes(),
     })
 }
@@ -216,7 +188,14 @@ impl GeneratorHandler {
         let config: GenerateConfig = serde_json::from_str(&buffer)
             .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer.trim_end(), err))?;
 
-        let data = encode_evolution_changes(config.encoding(), &*evolutions)?;
+        let layout: GenerateSteps = match config.data_structure {
+            GenerateInputLayout::Steps => evolutions_to_steps(&*evolutions)?,
+        };
+
+        let data = match config.encoding {
+            GenerateInputFormat::Json => encode_evolution_changes(config.encoding, &layout)?,
+        };
+        trace!("sending data: {}", from_utf8_lossy(&data));
         let len = proc.stdin.expect("failed to send to generator").write(&data)
             .expect(&format!("failed to write evolutions to generator {}", &generator.name));
         assert_eq!(len, data.len());
