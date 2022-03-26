@@ -1,6 +1,8 @@
 apivolve v0.1
 
 add object User {
-    add id type Uint64
-    add `name` type Text
+    add id
+        type Uint64
+    add `name`
+        type Text
 }

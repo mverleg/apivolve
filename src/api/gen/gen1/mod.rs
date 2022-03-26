@@ -250,11 +250,11 @@ mod tests {
 
     #[test]
     fn serialization_compatibility_generate_config() {
-        let json = serde_json::to_string(&GenerateConfig::new(
-            Version::new(1, 2, 4),
-            GenerateInputLayout::Steps,
-            GenerateInputFormat::Json,
-        )).unwrap();
+        let json = serde_json::to_string(&GenerateConfig {
+            apivolve_version: Version::new(1, 2, 4),
+            data_structure: GenerateInputLayout::Steps,
+            encoding: GenerateInputFormat::Json,
+        }).unwrap();
         assert_eq!(json, "{\"apivolve_version\":\"1.2.4\",\"data_structure\":\"Steps\",\"encoding\":\"Json\"}");
     }
 

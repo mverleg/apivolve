@@ -4,5 +4,6 @@ bump patch
 
 change object User {
     description "Member of the application"
-    add birthday type Date default "1988"
+    add birthday
+        type Date default "1988"
 }
