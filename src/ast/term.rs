@@ -1,4 +1,5 @@
 use crate::ast::{span, Span};
+use ::std::fmt;
 
 #[derive(Debug)]
 pub enum Value {
@@ -43,6 +44,12 @@ impl Iden {
             name: name[1..name.len() - 1].to_owned(),
             span: span(left, right),
         }
+    }
+}
+
+impl fmt::Display for Iden {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 

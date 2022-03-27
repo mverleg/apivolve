@@ -4,8 +4,8 @@ use crate::ast::Span;
 
 #[derive(Debug)]
 pub struct ObjectEvolution {
-    identifier: Ustr,
-    op: ObjectOp,
+    pub identifier: Ustr,
+    pub op: ObjectOp,
 }
 
 #[derive(Debug)]
