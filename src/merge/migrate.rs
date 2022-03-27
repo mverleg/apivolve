@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use ustr::{Ustr, UstrSet};
 use crate::ast::evolution::Block;
-use crate::ast::object::ObjectOp;
+use crate::ast::object::{FieldOp, ObjectOp};
 use crate::Evolutions;
 use crate::merge::object::State;
 
@@ -23,7 +23,15 @@ pub fn migrate(state: &State, evolutions: &Evolutions) -> State {
                             todo!();  //TODO @mark: resolve potential conflict
                         }
                         seen.insert(obj_ev.identifier);
-                        seen.insert(Ustr::from(&format!("{}/{}", &obj_ev.identifier, &change_ev.name)));
+                        for field_op in change_op.ops {
+                            match field_op {
+                                //TODO @mark: move `field` one level higher?
+                                FieldOp::Add(field, _) => {}
+                                FieldOp::Change(field, _) => {}
+                                FieldOp::Delete(field) => {}
+                            }
+                            seen.insert(Ustr::from(&format!("{}/{}", &obj_ev.identifier, &field_op.name)));
+                        }
                     }
                     ObjectOp::Delete(delete_op) => {
                         if seen.contains(&obj_ev.identifier) {
