@@ -2,7 +2,7 @@ use ::lazy_static::lazy_static;
 use ::regex::Regex;
 
 use crate::ast::evolution::VersionBump::Patch;
-use crate::ast::object::ObjectOp;
+use crate::ast::object::{ObjectEvolution, ObjectOp};
 use crate::ast::Span;
 
 lazy_static! {
@@ -44,7 +44,7 @@ pub enum VersionBump {
 
 #[derive(Debug)]
 pub enum Block {
-    Obj(ObjectOp),
+    Obj(ObjectEvolution),
 }
 
 #[derive(Debug)]

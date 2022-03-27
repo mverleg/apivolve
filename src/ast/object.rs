@@ -1,5 +1,12 @@
+use ustr::Ustr;
 use crate::ast::term::{Expression, Iden, Value};
 use crate::ast::Span;
+
+#[derive(Debug)]
+pub struct ObjectEvolution {
+    identifier: Ustr,
+    op: ObjectOp,
+}
 
 #[derive(Debug)]
 pub enum ObjectOp {

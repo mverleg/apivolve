@@ -33,7 +33,7 @@ impl FullEvolution {
 /// Sorted and non-empty
 #[derive(Debug)]
 pub struct Evolutions {
-    evolutions: Vec<Evolution>,
+    pub evolutions: Vec<Evolution>,
 }
 
 impl Evolutions {
