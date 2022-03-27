@@ -11,7 +11,7 @@ pub fn migrate(state: &State, evolutions: &Evolutions) -> State {
     for evolution in evolutions {
         for block in evolution.blocks {
             match block {
-                Block::Obj(obj_ev) => match obj_ev.op {
+                Block::Obj(obj_ev) => match obj_ev.operation {
                     ObjectOp::Add(add_op) => {
                         if seen.contains(&obj_ev.identifier) {
                             todo!();  //TODO @mark: resolve potential conflict
@@ -23,7 +23,7 @@ pub fn migrate(state: &State, evolutions: &Evolutions) -> State {
                             todo!();  //TODO @mark: resolve potential conflict
                         }
                         seen.insert(obj_ev.identifier);
-                        seen.insert(Ustr::from(&format!("{}/{}", &obj_ev.identifier, &change_op.name)));
+                        seen.insert(Ustr::from(&format!("{}/{}", &obj_ev.identifier, &change_ev.name)));
                     }
                     ObjectOp::Delete(delete_op) => {
                         if seen.contains(&obj_ev.identifier) {

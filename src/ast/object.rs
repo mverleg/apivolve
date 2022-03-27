@@ -4,8 +4,17 @@ use crate::ast::Span;
 
 #[derive(Debug)]
 pub struct ObjectEvolution {
-    pub identifier: Ustr,
-    pub op: ObjectOp,
+    pub identifier: Iden,
+    pub operation: ObjectOp,
+}
+
+impl ObjectEvolution {
+    pub fn new(identifier: Iden, operation: ObjectOp) -> Self {
+        ObjectEvolution {
+            identifier,
+            operation,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -17,23 +26,20 @@ pub enum ObjectOp {
 
 #[derive(Debug)]
 pub struct ObjectAdd {
-    pub name: Iden,
     pub desc: Option<(Span, String)>,
     pub ops: Vec<FieldOp>,
 }
 
 impl ObjectAdd {
-    pub fn minimal(name: Iden, ops: Vec<FieldOp>) -> Self {
+    pub fn minimal(ops: Vec<FieldOp>) -> Self {
         ObjectAdd {
-            name,
             desc: None,
             ops,
         }
     }
 
-    pub fn with_desc(name: Iden, desc: (Span, &str), ops: Vec<FieldOp>) -> Self {
+    pub fn with_desc(desc: (Span, &str), ops: Vec<FieldOp>) -> Self {
         ObjectAdd {
-            name,
             desc: Some((desc.0, desc.1.to_owned())),
             ops,
         }
@@ -42,23 +48,20 @@ impl ObjectAdd {
 
 #[derive(Debug)]
 pub struct ObjectChange {
-    pub name: Iden,
     pub desc: Option<(Span, String)>,
     pub ops: Vec<FieldOp>,
 }
 
 impl ObjectChange {
-    pub fn minimal(name: Iden, ops: Vec<FieldOp>) -> Self {
+    pub fn minimal(ops: Vec<FieldOp>) -> Self {
         ObjectChange {
-            name,
             desc: None,
             ops,
         }
     }
 
-    pub fn with_desc(name: Iden, desc: (Span, &str), ops: Vec<FieldOp>) -> Self {
+    pub fn with_desc(desc: (Span, &str), ops: Vec<FieldOp>) -> Self {
         ObjectChange {
-            name,
             desc: Some((desc.0, desc.1.to_owned())),
             ops,
         }
@@ -67,7 +70,6 @@ impl ObjectChange {
 
 #[derive(Debug)]
 pub struct ObjectDelete {
-    pub name: Iden,
 }
 
 #[derive(Debug)]
