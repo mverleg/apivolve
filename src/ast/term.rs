@@ -26,15 +26,19 @@ impl Value {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Iden {
     //TODO @mark: Ust
-    name: String,
-    span: Span,
+    pub name: String,
+    pub span: Span,
 }
 
 impl Iden {
     pub fn new(name: String, left: usize, right: usize) -> Self {
+        Self::new_span(name, span(left, right))
+    }
+
+    pub fn new_span(name: String, span: Span) -> Self {
         Iden {
             name,
-            span: span(left, right),
+            span,
         }
     }
 
