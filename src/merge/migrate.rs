@@ -19,27 +19,27 @@ pub fn migrate(state: &State, evolutions: &Evolutions) -> State {
                         if seen.contains(&obj_ev.identifier) {
                             todo!();  //TODO @mark: resolve potential conflict
                         }
-                        seen.insert(&obj_ev.identifier);
+                        seen.insert(obj_ev.identifier.clone());
                     }
                     ObjectOp::Change(change_op) => {
                         if seen.contains(&obj_ev.identifier) {
                             todo!();  //TODO @mark: resolve potential conflict
                         }
-                        seen.insert(&obj_ev.identifier);
+                        seen.insert(obj_ev.identifier.clone());
                         for field_ev in &change_op.operations {
                             match &field_ev.operation {
                                 FieldOp::Add(field_add_op) => {}
                                 FieldOp::Change(field_change_op) => {}
                                 FieldOp::Delete() => {}
                             }
-                            seen.insert(Iden::new_span(format!("{}/{}", &obj_ev.identifier, &field_ev.identifier), field_ev.identifier.span));
+                            seen.insert(Iden::new_span(format!("{}/{}", &obj_ev.identifier, &field_ev.identifier), field_ev.identifier.span.clone()));
                         }
                     }
                     ObjectOp::Delete(delete_op) => {
                         if seen.contains(&obj_ev.identifier) {
                             todo!();  //TODO @mark: resolve potential conflict
                         }
-                        seen.insert(&obj_ev.identifier);
+                        seen.insert(obj_ev.identifier.clone());
                     }
                 }
             }

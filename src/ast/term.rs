@@ -1,5 +1,6 @@
 use crate::ast::{span, Span};
 use ::std::fmt;
+use ustr::Ustr;
 
 #[derive(Debug)]
 pub enum Value {
@@ -25,8 +26,7 @@ impl Value {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Iden {
-    //TODO @mark: Ust
-    pub name: String,
+    pub name: Ustr,
     pub span: Span,
 }
 
@@ -35,19 +35,16 @@ impl Iden {
         Self::new_span(name, span(left, right))
     }
 
-    pub fn new_span(name: String, span: Span) -> Self {
-        Iden {
-            name,
-            span,
-        }
-    }
-
     pub fn new_backticked(name: String, left: usize, right: usize) -> Self {
         assert!(name.starts_with('`'));
         assert!(name.ends_with('`'));
+        Self::new_span(name[1..name.len() - 1].to_owned(), span(left, right))
+    }
+
+    pub fn new_span(name: impl AsRef<str>, span: Span) -> Self {
         Iden {
-            name: name[1..name.len() - 1].to_owned(),
-            span: span(left, right),
+            name: Ustr::from(name.as_ref()),
+            span,
         }
     }
 }
