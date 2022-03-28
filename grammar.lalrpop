@@ -58,10 +58,10 @@ block: Block = {
         Block::Obj(ObjectEvolution::new(name, ObjectOp::Change(ObjectChange::minimal(fields)))),
 };
 
-object_field: FieldOp = {
-    "add" <name:identifier> END? <props:object_field_prop*> => FieldOp::Add(name, props),
-    "change" <name:identifier> END? <props:object_field_prop*> => FieldOp::Change(name, props),
-    "delete" <name:identifier> END => FieldOp::Delete(name),
+object_field: FieldEvolution = {
+    "add" <name:identifier> END? <props:object_field_prop*> => FieldEvolution::new(name, FieldOp::Add(props)),
+    "change" <name:identifier> END? <props:object_field_prop*> => FieldEvolution::new(name, FieldOp::Change(props)),
+    "delete" <name:identifier> END => FieldEvolution::new(name, FieldOp::Delete()),
 }
 
 object_field_prop: FieldProperty = {

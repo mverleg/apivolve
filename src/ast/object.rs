@@ -27,21 +27,21 @@ pub enum ObjectOp {
 #[derive(Debug)]
 pub struct ObjectAdd {
     pub desc: Option<(Span, String)>,
-    pub ops: Vec<FieldOp>,
+    pub operations: Vec<FieldEvolution>,
 }
 
 impl ObjectAdd {
-    pub fn minimal(ops: Vec<FieldOp>) -> Self {
+    pub fn minimal(operations: Vec<FieldEvolution>) -> Self {
         ObjectAdd {
             desc: None,
-            ops,
+            operations,
         }
     }
 
-    pub fn with_desc(desc: (Span, &str), ops: Vec<FieldOp>) -> Self {
+    pub fn with_desc(desc: (Span, &str), operations: Vec<FieldEvolution>) -> Self {
         ObjectAdd {
             desc: Some((desc.0, desc.1.to_owned())),
-            ops,
+            operations,
         }
     }
 }
@@ -53,14 +53,14 @@ pub struct ObjectChange {
 }
 
 impl ObjectChange {
-    pub fn minimal(operations: Vec<FieldOp>) -> Self {
+    pub fn minimal(operations: Vec<FieldEvolution>) -> Self {
         ObjectChange {
             desc: None,
             operations,
         }
     }
 
-    pub fn with_desc(desc: (Span, &str), operations: Vec<FieldOp>) -> Self {
+    pub fn with_desc(desc: (Span, &str), operations: Vec<FieldEvolution>) -> Self {
         ObjectChange {
             desc: Some((desc.0, desc.1.to_owned())),
             operations,
@@ -76,6 +76,15 @@ pub struct ObjectDelete {
 pub struct FieldEvolution {
     pub identifier: Iden,
     pub operation: FieldOp,
+}
+
+impl FieldEvolution {
+    pub fn new(identifier: Iden, operation: FieldOp) -> Self {
+        FieldEvolution {
+            identifier,
+            operation,
+        }
+    }
 }
 
 #[derive(Debug)]
