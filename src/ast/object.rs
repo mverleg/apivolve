@@ -1,6 +1,6 @@
-use ustr::Ustr;
 use crate::ast::term::{Expression, Iden, Value};
 use crate::ast::Span;
+use ustr::Ustr;
 
 #[derive(Debug)]
 pub struct ObjectEvolution {
@@ -69,8 +69,7 @@ impl ObjectChange {
 }
 
 #[derive(Debug)]
-pub struct ObjectDelete {
-}
+pub struct ObjectDelete {}
 
 #[derive(Debug)]
 pub struct FieldEvolution {

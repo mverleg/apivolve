@@ -6,6 +6,6 @@ pub fn evolutions_to_steps(x: &FullEvolution) -> ApivResult<GenerateSteps> {
     //TODO @mark:
     Ok(GenerateSteps {
         versions: vec![],
-        pending: vec![]
+        pending: vec![],
     })
 }

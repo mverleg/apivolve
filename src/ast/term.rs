@@ -38,7 +38,7 @@ impl Iden {
     pub fn new_backticked(name: String, left: usize, right: usize) -> Self {
         assert!(name.starts_with('`'));
         assert!(name.ends_with('`'));
-        Self::new_span(name[1..name.len() - 1].to_owned(), span(left, right))
+        Self::new_span(&name[1..name.len() - 1], span(left, right))
     }
 
     pub fn new_span(name: impl AsRef<str>, span: Span) -> Self {

@@ -5,21 +5,21 @@ use ::std::borrow::Cow;
 use ::std::env;
 use ::std::fmt;
 use ::std::fmt::Formatter;
-use ::std::io::{BufReader, Read, Write};
 use ::std::io::BufRead;
+use ::std::io::{BufReader, Read, Write};
 use ::std::path::Path;
 use ::std::path::PathBuf;
-use ::std::process::{Child, Stdio};
 use ::std::process::Command;
+use ::std::process::{Child, Stdio};
 use ::std::rc::Rc;
-use ::std::sync::{Arc, mpsc};
+use ::std::sync::{mpsc, Arc};
 use ::std::thread;
 use ::std::time::Duration;
 use ::std::vec::IntoIter;
 
-use ::apivolve_generator_api::gen1::{GenerateInputLayout, GenerateSteps};
 use ::apivolve_generator_api::gen1::GenerateConfig;
 use ::apivolve_generator_api::gen1::GenerateInputFormat;
+use ::apivolve_generator_api::gen1::{GenerateInputLayout, GenerateSteps};
 use ::itertools::Itertools;
 use ::lazy_static::lazy_static;
 use ::log::debug;
@@ -27,14 +27,14 @@ use ::log::info;
 use ::log::trace;
 use ::regex::Regex;
 use ::semver::Version;
-use ::serde::__private::from_utf8_lossy;
 use ::serde::Deserialize;
 use ::serde::Serialize;
+use ::serde::__private::from_utf8_lossy;
 use ::which::which;
 use ::which::which_re;
 
-use crate::{ApivResult, FullEvolution, load_dir};
 use crate::api::gen::gen1::steps::evolutions_to_steps;
+use crate::{load_dir, ApivResult, FullEvolution};
 
 mod steps;
 
@@ -51,7 +51,11 @@ pub struct Generator {
 
 impl Generator {
     pub fn from_path(path: PathBuf) -> Self {
-        let full_name = path.file_name().expect("no filename").to_str().expect("filename is not unicode");
+        let full_name = path
+            .file_name()
+            .expect("no filename")
+            .to_str()
+            .expect("filename is not unicode");
         debug_assert!(full_name.starts_with(&*GEN_NAME_PREFIX));
         let name = full_name[GEN_NAME_PREFIX.len()..].to_owned();
         Generator { name, path }
@@ -100,10 +104,8 @@ pub struct GenerateResult {
 }
 
 impl GenerateResult {
-    pub fn new(generators : Vec<Generator>) -> Self {
-        GenerateResult {
-            generators
-        }
+    pub fn new(generators: Vec<Generator>) -> Self {
+        GenerateResult { generators }
     }
 }
 
@@ -116,12 +118,16 @@ impl fmt::Display for GenerateResult {
 pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> ApivResult<()> {
     assert!(!targets.is_empty());
     if targets.is_empty() {
-        return Err("Need at least one target to generate".to_owned())
+        return Err("Need at least one target to generate".to_owned());
     }
     let evolutions = Arc::new(load_dir(evolution_dir)?);
     let mut threads = vec![];
-    for generator in find_target_generators(&targets)?.into_iter() {
-        debug!("building generator {} (at {})", generator.name(), generator.path().to_string_lossy());
+    for generator in find_target_generators(targets)?.into_iter() {
+        debug!(
+            "building generator {} (at {})",
+            generator.name(),
+            generator.path().to_string_lossy()
+        );
         let name = generator.name.clone();
         let handler = GeneratorHandler::new(generator, evolutions.clone())?;
         let (sender, receiver) = mpsc::channel();
@@ -131,28 +137,43 @@ pub async fn apivolve_generate(evolution_dir: PathBuf, targets: &[String]) -> Ap
                 let target_name = handler.generator.name.clone();
                 debug!("starting generator {}", &target_name);
                 let res = handler.run();
-                debug!("sending {} result for {} generator", if res.is_ok() { "successful" } else { "FAILED" }, &target_name);
+                debug!(
+                    "sending {} result for {} generator",
+                    if res.is_ok() { "successful" } else { "FAILED" },
+                    &target_name
+                );
                 sender.send(res);
                 debug!("finished generator {}", &target_name);
-            }).unwrap();
+            })
+            .unwrap();
         threads.push((name, join_handle, receiver));
     }
     debug!("waiting for {} generators", targets.len());
     for (name, thread, receiver) in threads {
-        let res = receiver.recv_timeout(Duration::from_secs(60))
-            .map_err(|err| format!("failed to get result from generator thread"))??;
+        let res = receiver
+            .recv_timeout(Duration::from_secs(60))
+            .map_err(|err| "failed to get result from generator thread".to_owned())??;
         thread.join();
     }
     info!("all {} generators done", targets.len());
     Ok(())
 }
 
-fn encode_evolution_changes(input_format: GenerateInputFormat, steps: &GenerateSteps) -> ApivResult<Vec<u8>> {
+fn encode_evolution_changes(
+    input_format: GenerateInputFormat,
+    steps: &GenerateSteps,
+) -> ApivResult<Vec<u8>> {
     //TODO @mark: create a cache?
     //TODO @mark: can serde directly write to buffer, instead of allocating the whole thing?
     Ok(match input_format {
         GenerateInputFormat::Json => serde_json::to_string(&steps)
-            .map_err(|err| format!("failed to convert evolutions to json; generator {}, err {}", input_format, err))?.into_bytes(),
+            .map_err(|err| {
+                format!(
+                    "failed to convert evolutions to json; generator {}, err {}",
+                    input_format, err
+                )
+            })?
+            .into_bytes(),
     })
 }
 
@@ -178,15 +199,33 @@ impl GeneratorHandler {
     }
 
     fn run(self) -> ApivResult<()> {
-        let GeneratorHandler { generator, evolutions, mut proc } = self;
+        let GeneratorHandler {
+            generator,
+            evolutions,
+            mut proc,
+        } = self;
 
         let mut buffer = String::with_capacity(512);
-        let mut reader = BufReader::new(proc.stdout.as_mut().expect(&format!("failed to read from generator {}", &generator.name)));
-        reader.read_line(&mut buffer)
-            .map_err(|err| format!("failed to read config (first line) from {} generator; err {}", &generator.name, err))?;
+        let mut reader = BufReader::new(
+            proc.stdout
+                .as_mut()
+                .unwrap_or_else(|| panic!("failed to read from generator {}", &generator.name)),
+        );
+        reader.read_line(&mut buffer).map_err(|err| {
+            format!(
+                "failed to read config (first line) from {} generator; err {}",
+                &generator.name, err
+            )
+        })?;
         debug!("received generator config: {}", buffer.trim_end());
-        let config: GenerateConfig = serde_json::from_str(&buffer)
-            .map_err(|err| format!("failed to parse config (first line) from {} generator; got {}; err {}", &generator.name, buffer.trim_end(), err))?;
+        let config: GenerateConfig = serde_json::from_str(&buffer).map_err(|err| {
+            format!(
+                "failed to parse config (first line) from {} generator; got {}; err {}",
+                &generator.name,
+                buffer.trim_end(),
+                err
+            )
+        })?;
 
         let layout: GenerateSteps = match config.data_structure {
             GenerateInputLayout::Steps => evolutions_to_steps(&*evolutions)?,
@@ -196,8 +235,16 @@ impl GeneratorHandler {
             GenerateInputFormat::Json => encode_evolution_changes(config.encoding, &layout)?,
         };
         trace!("sending data: {}", from_utf8_lossy(&data));
-        let len = proc.stdin.expect("failed to send to generator").write(&data)
-            .expect(&format!("failed to write evolutions to generator {}", &generator.name));
+        let len = proc
+            .stdin
+            .expect("failed to send to generator")
+            .write(&data)
+            .unwrap_or_else(|_| {
+                panic!(
+                    "failed to write evolutions to generator {}",
+                    &generator.name
+                )
+            });
         assert_eq!(len, data.len());
 
         Ok(())
@@ -205,22 +252,27 @@ impl GeneratorHandler {
 }
 
 fn find_all_generators() -> ApivResult<Generators> {
-    debug!("PATH = {}", env::var("PATH").unwrap_or("".to_owned()));
-    let generators = which_re(&*GEN_NAME_RE).unwrap()
+    debug!(
+        "PATH = {}",
+        env::var("PATH").unwrap_or_else(|_| "".to_owned())
+    );
+    let generators = which_re(&*GEN_NAME_RE)
+        .unwrap()
         .map(Generator::from_path)
         .sorted_by_key(|gen| gen.name.clone())
-        .dedup_by(|gen1, gen2| &gen1.name == &gen2.name)
+        .dedup_by(|gen1, gen2| gen1.name == gen2.name)
         .collect::<Vec<_>>();
     if generators.is_empty() {
         return Err("no generators found on $PATH".to_owned());
     }
-    Ok(Generators {
-        generators,
-    })
+    Ok(Generators { generators })
 }
 
 fn find_target_generators(targets: &[String]) -> ApivResult<Generators> {
-    debug!("PATH = {}", env::var("PATH").unwrap_or("".to_owned()));
+    debug!(
+        "PATH = {}",
+        env::var("PATH").unwrap_or_else(|_| "".to_owned())
+    );
     Ok(Generators {
         generators: targets.iter()
             .map(|target| {
@@ -242,8 +294,8 @@ mod tests {
 
     use crate::ast::evolution::Block;
     use crate::ast::object::{FieldOp, ObjectAdd, ObjectOp};
-    use crate::ast::Span;
     use crate::ast::term::Iden;
+    use crate::ast::Span;
     use crate::load::evolution::Evolution;
 
     use super::*;
@@ -254,27 +306,41 @@ mod tests {
             apivolve_version: Version::new(1, 2, 4),
             data_structure: GenerateInputLayout::Steps,
             encoding: GenerateInputFormat::Json,
-        }).unwrap();
-        assert_eq!(json, "{\"apivolve_version\":\"1.2.4\",\"data_structure\":\"Steps\",\"encoding\":\"Json\"}");
+        })
+        .unwrap();
+        assert_eq!(
+            json,
+            "{\"apivolve_version\":\"1.2.4\",\"data_structure\":\"Steps\",\"encoding\":\"Json\"}"
+        );
     }
 
     #[test]
     fn serialization_compatibility_generators() {
         let json = serde_json::to_string(&Generators {
-            generators: vec![
-                Generator { name: "test-cmd".to_string(), path: PathBuf::from_str("/path/apivolve-gen1-test-cmd").unwrap() },
-            ]
-        }).unwrap();
-        assert_eq!(json, "[{\"name\":\"test-cmd\",\"path\":\"/path/apivolve-gen1-test-cmd\"}]");
+            generators: vec![Generator {
+                name: "test-cmd".to_string(),
+                path: PathBuf::from_str("/path/apivolve-gen1-test-cmd").unwrap(),
+            }],
+        })
+        .unwrap();
+        assert_eq!(
+            json,
+            "[{\"name\":\"test-cmd\",\"path\":\"/path/apivolve-gen1-test-cmd\"}]"
+        );
     }
 
     #[test]
     fn serialization_compatibility_generate_result() {
         let json = serde_json::to_string(&GenerateResult {
-            generators: vec![
-                Generator { name: "test-cmd".to_string(), path: PathBuf::from_str("/path/apivolve-gen1-test-cmd").unwrap() },
-            ]
-        }).unwrap();
-        assert_eq!(json, "{\"generators\":[{\"name\":\"test-cmd\",\"path\":\"/path/apivolve-gen1-test-cmd\"}]}");
+            generators: vec![Generator {
+                name: "test-cmd".to_string(),
+                path: PathBuf::from_str("/path/apivolve-gen1-test-cmd").unwrap(),
+            }],
+        })
+        .unwrap();
+        assert_eq!(
+            json,
+            "{\"generators\":[{\"name\":\"test-cmd\",\"path\":\"/path/apivolve-gen1-test-cmd\"}]}"
+        );
     }
 }

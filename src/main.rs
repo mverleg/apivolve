@@ -18,12 +18,12 @@ use ::apivolve::api::gen::gen1::apivolve_list_generators;
 use ::apivolve::apivolve_check;
 use ::apivolve::apivolve_next;
 use ::apivolve::apivolve_release;
-use ::apivolve::ApivResult;
 use ::apivolve::list1;
+use ::apivolve::ApivResult;
 
-use crate::cli::args::{Args, Targets};
 use crate::cli::args::Cmd;
 use crate::cli::args::DEFAULT_EVOLUTION_DIR;
+use crate::cli::args::{Args, Targets};
 
 mod cli;
 
@@ -49,18 +49,24 @@ async fn run(args: &Args) -> ApivResult<()> {
     let mut dir = PathBuf::from(&args.evolution_dir);
     match &args.cmd {
         Cmd::Check { .. } => apivolve_check(dir).await?,
-        Cmd::Gen { targets: Targets::List { json1 } } => {
+        Cmd::Gen {
+            targets: Targets::List { json1 },
+        } => {
             let list = apivolve_list_generators().await?;
             if *json1 {
                 println!("{}", serde_json::to_string_pretty(&list).unwrap())
             } else {
                 println!("{}", list)
             }
-        },
-        Cmd::Gen { targets: Targets::External(targets) } if targets.is_empty() => {
-            eprintln!("expected at least one generation target");  // prevented by structopt
         }
-        Cmd::Gen { targets: Targets::External(targets) } => apivolve_generate(dir, &*targets).await?,
+        Cmd::Gen {
+            targets: Targets::External(targets),
+        } if targets.is_empty() => {
+            eprintln!("expected at least one generation target"); // prevented by structopt
+        }
+        Cmd::Gen {
+            targets: Targets::External(targets),
+        } => apivolve_generate(dir, &*targets).await?,
         Cmd::List { json1 } => {
             let listing = list1::apivolve_list(dir).await?;
             if *json1 {
@@ -68,7 +74,7 @@ async fn run(args: &Args) -> ApivResult<()> {
             } else {
                 print!("{}", listing)
             }
-        },
+        }
         Cmd::New { .. } => apivolve_next(dir).await?,
         Cmd::Release { .. } => apivolve_release(dir).await?,
     };

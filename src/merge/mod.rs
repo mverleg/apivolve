@@ -1,2 +1,2 @@
-pub mod object;
 pub mod migrate;
+pub mod object;

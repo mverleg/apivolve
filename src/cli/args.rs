@@ -36,7 +36,7 @@ pub enum Cmd {
     #[structopt(about = "Combine current pending changes into a release")]
     Release {
         // #[structopt(short, long, about = "Squash all the evolutions into one file per version")]
-        // squash: bool,
+    // squash: bool,
     },
 }
 

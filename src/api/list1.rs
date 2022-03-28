@@ -9,12 +9,12 @@ use ::serde::Serialize;
 use ::sha2::Digest;
 use ::sha2::Sha256;
 
-use crate::{ApivResult, Evolutions, FullEvolution, load_dir};
+use crate::{load_dir, ApivResult, Evolutions, FullEvolution};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Listing {
     versions: Vec<VersionListing>,
-    pending: Vec<EvolutionListing>
+    pending: Vec<EvolutionListing>,
 }
 
 impl Listing {
@@ -67,13 +67,19 @@ impl EvolutionListing {
 impl fmt::Display for Listing {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for version in self.versions() {
-            println!("{}{} \"{}\"", "  ".repeat(version.depth() as usize), &version.version(), version.hash());
+            writeln!(
+                f,
+                "{}{} \"{}\"",
+                "  ".repeat(version.depth() as usize),
+                &version.version(),
+                version.hash()
+            )?;
             print_evolutions(version.evolutions(), version.depth())
         }
         match self.pending() {
-            &[] => println!("pending: none"),
+            &[] => writeln!(f, "pending: none")?,
             pend => {
-                println!("pending");
+                writeln!(f, "pending")?;
                 print_evolutions(pend, 0);
             }
         }
@@ -91,7 +97,7 @@ pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<Listing> {
         let mut evolution_listings = vec![];
         for evolution in evolutions {
             evolution_listings.push(EvolutionListing {
-                path: evolution.path.to_path_buf()
+                path: evolution.path.to_path_buf(),
             })
         }
         versions.push(VersionListing {
@@ -106,19 +112,20 @@ pub async fn apivolve_list(evolution_dir: PathBuf) -> ApivResult<Listing> {
     if let Some(evolutions) = evolutions.pending() {
         for evolution in evolutions {
             pending.push(EvolutionListing {
-                path: evolution.path.to_path_buf()
+                path: evolution.path.to_path_buf(),
             })
         }
     }
-    Ok(Listing {
-        versions,
-        pending,
-    })
+    Ok(Listing { versions, pending })
 }
 
 fn print_evolutions(evolutions: &[EvolutionListing], depth: u8) {
     for evolution in evolutions {
-        println!("{}- \"{}\"", "  ".repeat(depth as usize), evolution.path().to_string_lossy());
+        println!(
+            "{}- \"{}\"",
+            "  ".repeat(depth as usize),
+            evolution.path().to_string_lossy()
+        );
     }
 }
 
@@ -139,8 +146,8 @@ mod tests {
 
     use crate::ast::evolution::Block;
     use crate::ast::object::{FieldOp, ObjectAdd, ObjectOp};
-    use crate::ast::Span;
     use crate::ast::term::Iden;
+    use crate::ast::Span;
     use crate::load::evolution::Evolution;
 
     use super::*;
@@ -148,24 +155,32 @@ mod tests {
     #[test]
     fn serialization_compatibility() {
         let json = serde_json::to_string(&Listing {
-            versions: vec![VersionListing {
-                version: Version::new(1, 2, 4),
-                hash: "hasalg:abcdef123456".to_string(),
-                depth: 0,
-                evolutions: vec![
-                    EvolutionListing { path: PathBuf::from_str("/pth/v1.2.4/one.apiv").unwrap() },
-                    EvolutionListing { path: PathBuf::from_str("/pth/v1.2.4/two.apiv").unwrap() },
-                ]
-            }, VersionListing {
-                version: Version::new(1, 3, 0),
-                hash: "hasalg:abcdef123456".to_string(),
-                depth: 2,
-                evolutions: vec![]
+            versions: vec![
+                VersionListing {
+                    version: Version::new(1, 2, 4),
+                    hash: "hasalg:abcdef123456".to_string(),
+                    depth: 0,
+                    evolutions: vec![
+                        EvolutionListing {
+                            path: PathBuf::from_str("/pth/v1.2.4/one.apiv").unwrap(),
+                        },
+                        EvolutionListing {
+                            path: PathBuf::from_str("/pth/v1.2.4/two.apiv").unwrap(),
+                        },
+                    ],
+                },
+                VersionListing {
+                    version: Version::new(1, 3, 0),
+                    hash: "hasalg:abcdef123456".to_string(),
+                    depth: 2,
+                    evolutions: vec![],
+                },
+            ],
+            pending: vec![EvolutionListing {
+                path: PathBuf::from_str("/pth/alpha.apiv").unwrap(),
             }],
-            pending: vec![
-                EvolutionListing { path: PathBuf::from_str("/pth/alpha.apiv").unwrap() },
-            ]
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(json, "{\"versions\":[{\"version\":\"1.2.4\",\"hash\":\"hasalg:abcdef123456\",\"depth\":0,\"evolutions\":[{\"path\":\"/pth/v1.2.4/one.apiv\"},{\"path\":\"/pth/v1.2.4/two.apiv\"}]},{\"version\":\"1.3.0\",\"hash\":\"hasalg:abcdef123456\",\"depth\":2,\"evolutions\":[]}],\"pending\":[{\"path\":\"/pth/alpha.apiv\"}]}");
     }
 }

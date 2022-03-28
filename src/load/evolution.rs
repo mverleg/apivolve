@@ -3,10 +3,10 @@ use ::std::path::PathBuf;
 use ::std::ptr::hash;
 use ::std::slice::Iter;
 
-use ::sha2::Digest;
-use ::sha2::digest::Update;
-use ::sha2::Sha256;
 use ::semver::Version;
+use ::sha2::digest::Update;
+use ::sha2::Digest;
+use ::sha2::Sha256;
 
 use crate::ast::evolution::{Block, Dependency};
 
