@@ -1,6 +1,7 @@
-use crate::ast::term::{Expression, Iden, Value};
+use ::ustr::Ustr;
+
 use crate::ast::Span;
-use ustr::Ustr;
+use crate::ast::term::{Expression, Iden, Value};
 
 #[derive(Debug)]
 pub struct ObjectEvolution {

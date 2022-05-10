@@ -17,7 +17,6 @@ use crate::load::read::load_dir;
 
 mod common;
 
-pub mod api;
 mod ast;
 mod load;
 mod merge;

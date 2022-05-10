@@ -1,6 +1,8 @@
-use crate::ast::{span, Span};
 use ::std::fmt;
-use ustr::Ustr;
+
+use ::ustr::Ustr;
+
+use crate::ast::{span, Span};
 
 #[derive(Debug)]
 pub enum Value {
