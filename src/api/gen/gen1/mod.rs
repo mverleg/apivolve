@@ -5,21 +5,21 @@ use ::std::borrow::Cow;
 use ::std::env;
 use ::std::fmt;
 use ::std::fmt::Formatter;
-use ::std::io::BufRead;
+use ::std::fs::read_to_string;
 use ::std::io::{BufReader, Read, Write};
 use ::std::path::Path;
 use ::std::path::PathBuf;
-use ::std::process::Command;
 use ::std::process::{Child, Stdio};
+use ::std::process::Command;
 use ::std::rc::Rc;
-use ::std::sync::{mpsc, Arc};
+use ::std::sync::{Arc, mpsc};
 use ::std::thread;
 use ::std::time::Duration;
 use ::std::vec::IntoIter;
 
+use ::apivolve_generator_api::gen1::{GenerateInputLayout, GenerateSteps};
 use ::apivolve_generator_api::gen1::GenerateConfig;
 use ::apivolve_generator_api::gen1::GenerateInputFormat;
-use ::apivolve_generator_api::gen1::{GenerateInputLayout, GenerateSteps};
 use ::itertools::Itertools;
 use ::lazy_static::lazy_static;
 use ::log::debug;
@@ -27,14 +27,14 @@ use ::log::info;
 use ::log::trace;
 use ::regex::Regex;
 use ::semver::Version;
+use ::serde::__private::from_utf8_lossy;
 use ::serde::Deserialize;
 use ::serde::Serialize;
-use ::serde::__private::from_utf8_lossy;
 use ::which::which;
 use ::which::which_re;
 
+use crate::{ApivResult, FullEvolution, load_dir};
 use crate::api::gen::gen1::steps::evolutions_to_steps;
-use crate::{load_dir, ApivResult, FullEvolution};
 
 mod steps;
 
@@ -205,6 +205,16 @@ impl GeneratorHandler {
             mut proc,
         } = self;
 
+        // {
+        //     eprintln!("getting stdout"); //TODO @mark: TEMPORARY! REMOVE THIS!
+        //     let mut txt = String::new();
+        //     let out = proc.stdout.as_mut().unwrap();
+        //     eprintln!("start reading after getting lock"); //TODO @mark: TEMPORARY! REMOVE THIS!
+        //     out.read_to_string(&mut txt); //TODO @mark: TEMPORARY! REMOVE THIS!
+        //     dbg!(txt); //TODO @mark: TEMPORARY! REMOVE THIS!
+        //     eprintln!("finish reading"); //TODO @mark: TEMPORARY! REMOVE THIS!
+        // }
+
         let mut buffer = String::with_capacity(512);
         let mut reader = BufReader::new(
             proc.stdout
@@ -234,17 +244,26 @@ impl GeneratorHandler {
         let data = match config.encoding {
             GenerateInputFormat::Json => encode_evolution_changes(config.encoding, &layout)?,
         };
-        trace!("sending data: {}", from_utf8_lossy(&data));
-        let len = proc
-            .stdin
-            .expect("failed to send to generator")
-            .write(&data)
-            .unwrap_or_else(|_| {
-                panic!(
-                    "failed to write evolutions to generator {}",
-                    &generator.name
-                )
-            });
+        trace!(
+            "sending data to generator {}: {}",
+            &generator.name,
+            from_utf8_lossy(&data)
+        );
+        let guard = run_if_not_ready_after(Duration::from_secs(5), || {
+            eprintln!("still sending evaluation changes after 5 seconds")
+        });
+        let mut stdin = proc.stdin.take().expect("failed to send to generator");
+        let len = stdin.write(&data).unwrap_or_else(|_| {
+            panic!(
+                "failed to write evolutions to generator {}",
+                &generator.name
+            )
+        });
+        trace!("closing generator stdin for {}", &generator.name);
+        drop(stdin);
+        guard.ready();
+        trace!("closed generator stdin for {}", &generator.name);
+
         assert_eq!(len, data.len());
 
         Ok(())
@@ -294,8 +313,8 @@ mod tests {
 
     use crate::ast::evolution::Block;
     use crate::ast::object::{FieldOp, ObjectAdd, ObjectOp};
-    use crate::ast::term::Iden;
     use crate::ast::Span;
+    use crate::ast::term::Iden;
     use crate::load::evolution::Evolution;
 
     use super::*;

@@ -30,6 +30,8 @@ But unlike those, Apivolve does not just generate the latest version, it also ge
 
 Apivolve embraces the idea that APIs are not just en/decoding, but should clearly document what they need/provide. And the best way to do that is by including constraints in the api (as opposed to in the application logic).
 
+More about creating a code generator in [apivolve_generator_api](https://github.com/mverleg/apivolve_generator_api).
+
 ## How to use?
 
 **Apivolve is not yet ready for use, sorry.**
