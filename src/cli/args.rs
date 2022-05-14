@@ -31,6 +31,7 @@ pub enum Cmd {
         )]
         targets: Targets,
     },
+    //TODO @mark: command to test generators, using the same test data that apivolve_generator_api uses
     #[structopt(about = "Create a new evolutions file at the head of the current chain")]
     New {},
     #[structopt(about = "Combine current pending changes into a release")]
