@@ -1,6 +1,8 @@
 # Apivolve
 
-Apivolve is an API evolution tool, it helps keep your APIs backwards compatible yet clean, and generates client/server code in a variety of languages.
+Apivolve is an API evolution tool. It helps keep your APIs backwards compatible yet clean, and generates client/server code in a variety of languages.
+
+[Why Apivolve](./MOTIVATION.md)? and [how does it work](./DESIGN.md)? Want to [write a generator](https://github.com/mverleg/apivolve_generator_api)?
 
 ## Is it ready for use?
 
