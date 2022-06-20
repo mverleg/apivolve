@@ -25,6 +25,8 @@ pub enum Cmd {
     Check {},
     #[structopt(about = "Generate the API code for a specific target(s)")]
     Gen {
+        #[structopt(long = "party", short = "p", about = "Party to generate code for. Can be repeated, or left empty for all.")]
+        party: Vec<Identifier>,
         #[structopt(
             subcommand,
             about = "Targets to generate code for; leave empty to show all implementations"
