@@ -13,12 +13,9 @@ use ::regex::Regex;
 use ::structopt::StructOpt;
 use ::which::which_re;
 
-use ::apivolve::api::gen::gen1::apivolve_generate;
-use ::apivolve::api::gen::gen1::apivolve_list_generators;
 use ::apivolve::apivolve_check;
 use ::apivolve::apivolve_next;
 use ::apivolve::apivolve_release;
-use ::apivolve::list1;
 use ::apivolve::ApivResult;
 
 use crate::cli::args::Cmd;
@@ -50,6 +47,7 @@ async fn run(args: &Args) -> ApivResult<()> {
     match &args.cmd {
         Cmd::Check { .. } => apivolve_check(dir).await?,
         Cmd::Gen {
+            party: vec![],
             targets: Targets::List { json1 },
         } => {
             let list = apivolve_list_generators().await?;
@@ -60,11 +58,13 @@ async fn run(args: &Args) -> ApivResult<()> {
             }
         }
         Cmd::Gen {
+            party: vec![],
             targets: Targets::External(targets),
         } if targets.is_empty() => {
             eprintln!("expected at least one generation target"); // prevented by structopt
         }
         Cmd::Gen {
+            party: vec![],
             targets: Targets::External(targets),
         } => apivolve_generate(dir, &*targets).await?,
         Cmd::List { json1 } => {
