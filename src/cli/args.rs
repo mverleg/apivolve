@@ -1,3 +1,4 @@
+use ::apivolve_generator_api::Identifier;
 use ::structopt::StructOpt;
 
 pub static DEFAULT_EVOLUTION_DIR: &str = "./apivolve";

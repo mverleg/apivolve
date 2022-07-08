@@ -9,18 +9,20 @@ Evolution files describe the changes made to the api. They should be grouped int
 * Include types, validations and communication protocols.
 * Include documentation and examples (which may be used for test generation).
 * No changes after release (comments and descriptions can change).
-* Fixed version after release, that is easy to find from the source.
+* Fixed version nr after release, that is easy to find from the source.
 * Strict validation of changes, flag all backwards incompatible changes.
 * Before release, making changes should be easy, but have full validation.
-* Pending changes and identical released changes should behave the same.
-* Breaking changes must bump major version. New endpoints must bump minor version.
+* Changes should behave the same before and after release.
+* Breaking changes must bump major version unless suppressed. New endpoints must bump minor version.
+* Versions form a tree: each version has one (older) ancestor, but possible multiple (newer) descendents.
 * When merging VCS branches, avoid unnecessary manual merging.
 * When merging VCS branches, avoid getting invalid results without merge conflict.
 * Creating a release with every merge to main branch should be easy.
 * Nice to have, probably hard: creating a release on feature branch should not conflict.
 * Nice to have: preserve VCS blame when releasing.
+* Nice to have: a version from one branch can write an 'adapter' to a version from a higher branch
 
-The versions can be linear for now. For example, 1.2.3 is either direcrtly followed by 1.2.4 or by 1.3.0, but not both. It is not supported to keep updating the 1.2 branch once 1.3 has been created. The main purpose of Apivolve is to have all olders versions be compatible, so there should be no need to support 1.2.4.
+Trees of versions are supported, but linear versions are encouraged, especially in the early stages of Apivolve. If v1.2 is followed by v1.3 AND v2.0, both leafs to be supported manually outside Apivolve. It will always be manual, but may one day be inside Apivolve.
 
 ### Solution
 
