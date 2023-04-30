@@ -16,6 +16,8 @@ pub mod grammar {
     lalrpop_mod!(pub grammar);
 }
 
+//TODO @mark: error handling: https://github.com/mverleg/steel/blob/92609d7b90/compiler/src/parser/errors.rs
+
 #[rustfmt::skip]
 pub fn compile(identifier: &str, code: &str) -> ApivResult<EvolutionAst> {
     match evolutionParser::new().parse(code) {

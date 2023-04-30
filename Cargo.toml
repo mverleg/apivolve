@@ -1,6 +1,6 @@
 [package]
 name = "apivolve"
-version = "0.1.0"
+version = "0.1.1"
 description = "Apivolve is an API evolution tool, it helps keep your APIs backwards compatible yet clean, and generates client/server code in a variety of languages."
 edition = "2021"
 publish = true
@@ -25,34 +25,34 @@ binary = [
 ]
 
 [build-dependencies]
-lalrpop = "0.19.9"
+lalrpop = "0.19.12"
 
 [dependencies]
 # general
 log = "0.4.17"
-lalrpop-util = { version = "0.19.9", features = ["lexer"] }
-regex = "1.7.3"
+lalrpop-util = { version = "0.19.12", features = ["lexer"] }
+regex = "1.8.1"
 lazy_static = "1.4.0"
 futures = "0.3.28"
 sha2 = "0.10.6"
-base64 = "0.13.1"
+base64 = "0.21.0"
 which = { version = "4.4.0", features = ["regex"] }
 serde = { version = "1.0.160", features = ["derive"] }
 serde_json = "1.0.96"
 semver = { version = "1.0.17", features = ["serde"] }
-ustr = "0.8.1"
+ustr = "0.9.0"
 #dashmap = "5.1.0"
 #derive-new = "0.5.9"
 #derive-getters = "0.2.0"
 itertools = "0.10.5"
-apivolve_generator_api = { path = "../apivolve_generator_api" }
+apivolve_generator_api = "0.1.1"
 
 # bin
-env_logger = { version = "0.9.3", optional = true }
+env_logger = { version = "0.10.0", optional = true }
 structopt = { version = "0.3.26", optional = true }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemallocator = { version = "0.3.2", optional = true }
+jemallocator = { version = "0.5.0", optional = true }
 
 [profile.release]
 lto = "thin"
